@@ -10,7 +10,7 @@ import {
 
 import client from '~/redis.server'
 import { getSession, commitSession } from '~/sessions.server'
-import { getUser, getUserPost, getUserPosts } from '~/external/guilded'
+import { getUser, getUserPost, getUserPosts } from '~/common/guilded'
 import { randomString } from '~/common/random'
 import { Button, ErrorBlock } from '~/common/components'
 

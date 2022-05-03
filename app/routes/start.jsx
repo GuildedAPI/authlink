@@ -8,7 +8,7 @@ import { useState } from 'react'
 
 import { getSession } from '~/sessions.server'
 import { Button } from '~/common/components'
-import { search, getUser } from '~/external/guilded'
+import { search, getUser } from '~/common/guilded'
 
 const searchCache = {}
 const userCache = {}

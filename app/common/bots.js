@@ -1,4 +1,4 @@
-import {getUser, getExternalBot, getTeamMembers} from '~/external/guilded'
+import { getUser, getExternalBot, getTeamMembers } from './guilded'
 
 export function stripCdnUrl(url) {
     return url

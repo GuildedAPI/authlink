@@ -3,7 +3,7 @@ import { Link, useActionData, useLoaderData, useSubmit } from '@remix-run/react'
 import pool from '~/psql.server'
 import { boilerplateLoader } from '~/sessions.server'
 
-import { search, getTeamMembers } from '~/external/guilded'
+import { search, getTeamMembers } from '~/common/guilded'
 import { tryBot, getBotWithMethod } from '~/common/bots'
 import { Button, ErrorBlock } from '~/common/components'
 import { useState } from 'react'
