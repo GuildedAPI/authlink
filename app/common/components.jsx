@@ -97,8 +97,9 @@ export const CopyArea = (props) => {
     return (
         <div className='flex'>
             <input
+                id={props.id}
                 className='p-2 w-full h-full my-auto rounded bg-guilded-slate border border-white/10 hover:border-white/30 transition-colors cursor-default'
-                value={props.value.toString()}
+                value={props.value}
                 readOnly
                 disabled
             />

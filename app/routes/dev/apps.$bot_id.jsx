@@ -8,7 +8,6 @@ import pool from '~/psql.server'
 import { boilerplateLoader } from '~/sessions.server'
 import { randomString } from '~/common/random'
 import { tryBot, getBotWithMethod } from '~/common/bots'
-import { cloneFormData } from '~/common/utilities'
 
 import { Button, ErrorBlock, PopoutSelectables, CopyArea } from '~/common/components'
 
@@ -54,14 +53,27 @@ export async function action({ request, params }) {
     const guildedData = await boilerplateLoader({request})
     const data = await request.formData()
 
-    if (['draft_redirect_uris', 'prompt_delete'].includes(data.get('_action'))) {
-        const cloned = cloneFormData(data, {keepAllKeys: 'keep'})
-        if (data.get('_action') === 'draft_redirect_uris') {
-            cloned.keep = cloned.keep || []
-        }
-        return cloned
-    } else if (data.get('_action') === 'set_redirect_uris') {
+    if (data.get('_action') === 'set_redirect_uris') {
         const redirectURIs = data.getAll('redirect_uris')
+        if (redirectURIs.length > 10) {
+            return {
+                error: true,
+                message: 'Cannot exceed maximum number of redirect URIs (10).',
+            }
+        }
+        for (const uri of redirectURIs) {
+            if (uri.length > 2000) {
+                return {
+                    error: true,
+                    message: 'Cannot save a redirect URI over 2,000 characters.',
+                }
+            } else if (!uriRegex.test(uri)) {
+                return {
+                    error: true,
+                    message: `${uri} is not a valid URI.`,
+                }
+            }
+        }
         const connection = await pool.acquire()
         try {
             const statement = await connection.prepare('UPDATE applications SET redirect_uris = $1 WHERE bot_id = $2 AND owner_id = $3')
@@ -119,8 +131,6 @@ function generateSecret(client_id) {
 
 const uriRegex = /^((?:\w{1,32}):\/\/[^\s<]+[^<.,:;"'\]\s])$/
 
-let draftingURIs = []
-
 const selectedScopes = []
 let selectedRedirectURI = null
 let selectedPrompt = 'consent'
@@ -146,42 +156,52 @@ export default function DevApps() {
         iconUrl = `https://img.guildedcdn.com/UserAvatar/${app.icon_hash}-Small.png`
     }
 
-    draftingURIs = app.redirect_uris
-    if (actionData._action === 'draft_redirect_uris' && draftingURIs.length < 10 && (draftingURIs.length === 0 || draftingURIs.slice(draftingURIs.length-1)[0] != '')) {
-        draftingURIs = actionData.keep
+    const [uris, setDraftingURIs] = useState(app.redirect_uris)
+    const draftingURIs = [...uris]
+    const [showDeletePrompt, setDeletePrompt] = useState(false)
+    const authState = {
+        scopes: [],
+        prompt: 'consent',
+        redirectUri: null,
     }
 
-    // TODO: Prevent cross-page state contamination
     function updateSelectedScopes(event) {
         if (event.target.checked) {
-            selectedScopes.push(event.target.name)
+            authState.scopes.push(event.target.value)
         } else {
-            selectedScopes.splice(selectedScopes.indexOf(event.target.name), 1)
+            authState.scopes.splice(authState.scopes.indexOf(event.target.value), 1)
         }
-        submit({_action: ''}, {method: 'post', replace: true})
+        document.getElementById('generated-url').value = generateUrl()
     }
 
     function updateSelectedPrompt(event) {
-        selectedPrompt = event.target.value
-        submit({_action: ''}, {method: 'post', replace: true})
+        authState.prompt = event.target.value
+        document.getElementById('generated-url').value = generateUrl()
     }
 
-    const authURL = new URL('https://authlink.guildedapi.com/auth')
-    authURL.searchParams.append('client_id', app.bot_id)
-    if (selectedScopes.length != 0) {authURL.searchParams.append('scope', selectedScopes.join(' '))}
-    if (selectedRedirectURI) {authURL.searchParams.append('redirect_uri', selectedRedirectURI)}
-    if (selectedPrompt != 'consent') {authURL.searchParams.append('prompt', selectedPrompt)}
+    function generateUrl() {
+        if (!authState.redirectUri) {
+            return 'Please select a redirect URI'
+        }
+        const authURL = new URL('https://authlink.guildedapi.com/auth')
+        authURL.searchParams.append('client_id', app.bot_id)
+        if (authState.scopes.length > 0) authURL.searchParams.append('scope', authState.scopes.join(' '))
+        if (authState.redirectUri) authURL.searchParams.append('redirect_uri', authState.redirectUri)
+        if (authState.prompt != 'consent') authURL.searchParams.append('prompt', authState.prompt)
+        return String(authURL)
+    }
+    const authURL = generateUrl()
 
     return (
         <div className='w-full'>
             <ErrorBlock>{actionData.error && actionData.message}</ErrorBlock>
-            {actionData._action === 'prompt_delete' && (
+            {showDeletePrompt && (
                 <div className='mb-4 bg-[#3e3f4a] p-3 rounded border border-white/10 w-full'>
                     <h1 className='font-bold text-2xl text-red-400'>HOLD IT!</h1>
                     <p>Are you sure you want to delete <span className='font-bold'>{app.name}</span> and its {app.authorization_count.toLocaleString()} active authorization{app.authorization_count === 1 ? '' : 's'}?</p>
                     <div className='mt-2'>
                         <Button stylename='danger' onClick={() => {submit(null, {method: 'delete'})}}>Destroy it!</Button>
-                        <button className='ml-4 text-guilded-subtitle font-bold hover:text-white transition-colors' onClick={() => {submit(null, {method: 'get', replace: true})}}>Actually, no thanks.</button>
+                        <button className='ml-4 text-guilded-subtitle font-bold hover:text-white transition-colors' onClick={() => {setDeletePrompt(false)}}>Actually, no thanks</button>
                     </div>
                 </div>
             )}
@@ -230,7 +250,6 @@ export default function DevApps() {
                                     _action: 'update_profile',
                                     method: attempt.method,
                                     bot: JSON.stringify({
-                                        id: app.bot_id,
                                         userId: attempt.bot.userId,
                                         teamId: attempt.bot.teamId,
                                     }),
@@ -245,7 +264,7 @@ export default function DevApps() {
                             label: 'Delete application',
                             callback: () => {
                                 setOpen(false)
-                                submit({_action: 'prompt_delete'}, {method: 'post', replace: true})
+                                setDeletePrompt(true)
                             },
                         },
                     ]}
@@ -272,7 +291,7 @@ export default function DevApps() {
                 <div className='mt-4'>
                     <p className='text-guilded-subtitle'>Redirect URIs</p>
                     <p>You can have up to 10 redirect URIs. Any valid URI under 2,000 characters is accepted.</p>
-                    {draftingURIs.map((uri, index) => (
+                    {uris.map((uri, index) => (
                         <div className='w-full mt-2 flex' key={`uri-${uri}-${index}`}>
                             <input
                                 className='p-2 w-full rounded bg-guilded-slate border valid:border-green-400/70 invalid:border-rose-400/70 transition-colors'
@@ -286,10 +305,7 @@ export default function DevApps() {
                             />
                             <button onClick={() => {
                                 draftingURIs.splice(index, 1)
-                                const data = new FormData()
-                                data.append('_action', 'draft_redirect_uris')
-                                for (const uri of draftingURIs) {data.append('keep', uri)}
-                                submit(data, {method: 'post', replace: true})
+                                setDraftingURIs(draftingURIs)
                             }}>
                                 <i className='ci-trash_full text-2xl border border-white/10 hover:border-rose-400/70 ml-3 rounded bg-guilded-slate p-2 h-full transition-colors'/>
                             </button>
@@ -297,13 +313,11 @@ export default function DevApps() {
                     ))}
                     <Button
                         className='mt-2'
-                        disabled={draftingURIs.length >= 10}
+                        disabled={uris.length >= 10}
                         onClick={() => {
+                            if (uris.length >= 10) return
                             draftingURIs.push('')
-                            const data = new FormData()
-                            data.append('_action', 'draft_redirect_uris')
-                            for (const uri of draftingURIs) {data.append('keep', uri)}
-                            submit(data, {method: 'post', replace: true})
+                            setDraftingURIs(draftingURIs)
                         }}
                     >New URI
                     </Button>
@@ -324,36 +338,59 @@ export default function DevApps() {
                     <p><Link to='/dev/docs#authorization' className='text-guilded-link'>Read more about authorization URLs</Link></p>
                     <h5 className='font-bold mt-2 text-guilded-subtitle'>Scopes</h5>
                     <label>
-                        <input name='identify' type='checkbox' onChange={updateSelectedScopes}/> identify
+                        <input
+                            name='scope'
+                            value='identify'
+                            type='checkbox'
+                            onChange={updateSelectedScopes}
+                        /> identify
                     </label>
                     <br/>
                     <label>
-                        <input name='servers' type='checkbox' onChange={updateSelectedScopes}/> servers
+                        <input
+                            name='scope'
+                            value='servers'
+                            type='checkbox'
+                            onChange={updateSelectedScopes}
+                        /> servers
                     </label>
                     <br/>
                     <label>
-                        <input name='servers.members.read' type='checkbox' onChange={updateSelectedScopes}/> servers.members.read
+                        <input
+                            name='scope'
+                            value='servers.members.read'
+                            type='checkbox'
+                            onChange={updateSelectedScopes}
+                        /> servers.members.read
                     </label>
                     <h5 className='font-bold mt-2 text-guilded-subtitle'>Prompt</h5>
                     <label>
-                        <input name='prompt' value='consent' type='radio' onChange={updateSelectedPrompt} checked={selectedPrompt == 'consent'}/> consent
+                        <input
+                            name='prompt'
+                            value='consent'
+                            type='radio'
+                            onChange={updateSelectedPrompt}
+                        /> consent
                     </label>
                     <br/>
                     <label>
-                        <input name='prompt' value='none' type='radio' onChange={updateSelectedPrompt} checked={selectedPrompt == 'none'}/> none
+                        <input
+                            name='prompt'
+                            value='none'
+                            type='radio'
+                            onChange={updateSelectedPrompt}
+                        /> none
                     </label>
                     <h5 className='font-bold mt-2 text-guilded-subtitle'>Redirect URI</h5>
                     <select
                         className='rounded p-2 bg-guilded-slate border border-white/10'
                         defaultValue='null'
                         onChange={(event) => {
-                            selectedRedirectURI = event.target.selectedOptions[0].value
-                            submit(null, {method: 'post', replace: true})
+                            authState.redirectUri = event.target.selectedOptions[0].value
+                            document.getElementById('generated-url').value = generateUrl()
                         }}
                     >
-                        <option value='null' disabled>
-                            Select a URI
-                        </option>
+                        <option value='null' disabled>Select a URI</option>
                         {app.redirect_uris.map((uri, index) => (
                             <option key={`link-uri-${uri}-${index}`} value={uri}>
                                 {uri}
@@ -361,7 +398,7 @@ export default function DevApps() {
                         ))}
                     </select>
                     <h5 className='font-bold mt-2 text-guilded-subtitle'>Link</h5>
-                    <CopyArea value={authURL} />
+                    <CopyArea value={authURL} id='generated-url' />
                 </div>
             </div>
         </div>
