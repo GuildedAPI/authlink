@@ -1,0 +1,34 @@
+{
+  "name": "guilded-oauth",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "sideEffects": false,
+  "scripts": {
+    "build": "remix build",
+    "dev": "PORT=3020 remix dev",
+    "start": "PORT=3021 remix-serve build"
+  },
+  "dependencies": {
+    "@floating-ui/react-dom": "^0.6.3",
+    "@floating-ui/react-dom-interactions": "^0.4.0",
+    "@remix-run/node": "^1.4.0",
+    "@remix-run/react": "^1.4.0",
+    "@remix-run/serve": "^1.4.0",
+    "dotenv": "^16.0.0",
+    "postcss": "^8.4.12",
+    "postgresql-client": "^2.0.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "redis": "^4.0.6",
+    "remix-tailwind": "^0.3.0",
+    "tailwindcss": "^3.0.24"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^1.4.0",
+    "@remix-run/eslint-config": "^1.4.0",
+    "eslint": "^8.11.0"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
