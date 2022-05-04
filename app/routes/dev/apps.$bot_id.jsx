@@ -131,10 +131,6 @@ function generateSecret(client_id) {
 
 const uriRegex = /^((?:\w{1,32}):\/\/[^\s<]+[^<.,:;"'\]\s])$/
 
-const selectedScopes = []
-let selectedRedirectURI = null
-let selectedPrompt = 'consent'
-
 export default function DevApps() {
     // Profile context menu
     const [open, setOpen] = useState(false)
@@ -180,9 +176,9 @@ export default function DevApps() {
     }
 
     function generateUrl() {
-        if (!authState.redirectUri) {
-            return 'Please select a redirect URI'
-        }
+        if (!authState.redirectUri) return 'Please select a redirect URI'
+        else if (authState.scopes.length === 0) return 'Please select at least one scope'
+
         const authURL = new URL('https://authlink.guildedapi.com/auth')
         authURL.searchParams.append('client_id', app.bot_id)
         if (authState.scopes.length > 0) authURL.searchParams.append('scope', authState.scopes.join(' '))
@@ -370,7 +366,7 @@ export default function DevApps() {
                             value='consent'
                             type='radio'
                             onChange={updateSelectedPrompt}
-                        /> consent
+                        /> consent (default)
                     </label>
                     <br/>
                     <label>
