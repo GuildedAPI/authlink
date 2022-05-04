@@ -96,20 +96,23 @@ export default function Docs() {
             </table>
             <AnchoredHeader size='xl' id='authorization-url-structure'>Authorization URL Structure</AnchoredHeader>
             <pre className={preStyle}>
-                https://oauth.guildedapi.com/auth?client_id=62ca5dc8-4de2-4202-a770-3bf87e4433a0&scope=identify+servers&redirect_uri=https%3A%2F%2Fguildedapi.com%2Fcallback
+                https://oauth.guildedapi.com/auth?client_id=62ca5dc8-4de2-4202-a770-3bf87e4433a0&scope=identify+servers&redirect_uri=https%3A%2F%2Fguildedapi.com%2Fcallback&prompt=consent&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
             </pre>
             <ul className='list-disc ml-4'>
                 <li><InlineCode>client_id</InlineCode> - your application's client ID. This is the same as the linked bot ID that you created the application with.</li>
                 <li><InlineCode>scope</InlineCode> - a list of url-encoded-space-separated scopes that you want to authorize your application for.</li>
                 <li><InlineCode>redirect_uri</InlineCode> - the URI that your users should be redirected to after authorizing your application. This must be a valid entry under "Redirect URIs" on your application's page.</li>
-                {/* TODO: state */}
+                <li><InlineCode>state</InlineCode> - a unique, user-specific, unguessable string that Authlink should return to your application upon authorization. If it does not match what you sent, you should reject the authorization. <a href='https://auth0.com/docs/secure/attack-protection/state-parameters' target='_blank' className='text-guilded-link'>Read more about this parameter.</a></li>
                 <li><InlineCode>prompt</InlineCode> - If this is <InlineCode>consent</InlineCode> (default), reapproval will be prompted even if the user has already authorized your application with the selected scopes. If this is <InlineCode>none</InlineCode>, the authorization screen will be skipped automatically when these criteria are met.</li>
             </ul>
             <AnchoredHeader size='lg' id='redirect-uri'>Redirect URI</AnchoredHeader>
             <pre className={preStyle}>
-                https://guildedapi.com/callback?code=
+                https://guildedapi.com/callback?code=M3oo84JqCYFcToYxjzWKVHEVnmd3Rfol&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
             </pre>
-            <p>You can now exchange <InlineCode>code</InlineCode> for the user's access token:</p>
+            <p>
+                At this point, you should verify the <InlineCode>state</InlineCode> param mentioned above, if you included it.
+                You can now exchange <InlineCode>code</InlineCode> for the user's access token:
+            </p>
             <Endpoint method='post' name='Exchange Code'>/token</Endpoint>
             <p>
                 Exchange a code for an access token for use with the rest of the API or refresh an access token using a refresh token.
