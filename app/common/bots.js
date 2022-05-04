@@ -76,7 +76,7 @@ export async function getBotWithMethod(method, props) {
             bot = externalBot.bot
             break
         case '2':
-            const teamMembers = await getTeamMembers(data.get('team_id'))
+            const teamMembers = await getTeamMembers(props.teamId)
             bot = (teamMembers.bots || []).filter(val => (val.internalBotId || val.id) === props.id)[0]
             break
     }

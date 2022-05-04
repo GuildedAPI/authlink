@@ -42,8 +42,8 @@ export async function loader({ request }) {
     return null
 }
 
-const Navbar = () => {
-    const data = useLoaderData()
+const Navbar = (props) => {
+    const data = props.data || {}
     const submit = useSubmit()
 
     const [open, setOpen] = useState(false)
@@ -136,6 +136,7 @@ const Navbar = () => {
 }
 
 export default function App() {
+    const loaderData = useLoaderData()
     return (
         <html lang='en'>
             <head>
@@ -143,7 +144,7 @@ export default function App() {
                 <Links />
             </head>
             <body className='bg-guilded-gray text-guilded-white p-5 mx-auto max-w-2xl'>
-                <Navbar />
+                <Navbar data={loaderData} />
                 <Outlet />
                 <ScrollRestoration />
                 <Scripts />

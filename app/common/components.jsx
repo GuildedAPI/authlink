@@ -105,7 +105,7 @@ export const CopyArea = (props) => {
             />
             <button
                 onClick={(event) => {
-                    copyText(props.value)
+                    copyText(event.currentTarget.parentNode.children[0].value)
 
                     const icon = event.currentTarget.children[0]
                     icon.classList.add('border-green-500/70')
