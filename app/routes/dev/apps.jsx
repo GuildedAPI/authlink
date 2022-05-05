@@ -238,31 +238,29 @@ export default function Applications() {
                                                 iconUrl = bot.iconUrl
                                             }
                                             return (
-                                                <div className='flex'>
-                                                {/* TODO: make this the bot svg */}
-                                                <i className='ci-sub_right text-[2rem] text-[#32343d] mx-1 my-auto' />
-                                                <button
-                                                    key={`team-${bot.id}`}
-                                                    className='flex mt-2 bg-[#32343d] hover:bg-[#1f2126] transition-colors rounded w-full p-2'
-                                                    onClick={() => {
-                                                        setErrorMsg(null)
-                                                        submit({
-                                                            _action: 'create',
-                                                            method: !bot.internalBotId ? 2 : 1,
-                                                            bot: JSON.stringify({
-                                                                id: bot.internalBotId || bot.id,
-                                                                userId: bot.userId,
-                                                                teamId: bot.teamId,
-                                                            }),
-                                                        }, {
-                                                            method: 'post',
-                                                            replace: true,
-                                                        })
-                                                    }}
-                                                >
-                                                    <img src={iconUrl} className='rounded-full mr-2 h-8' />
-                                                    <span className='my-auto'>{bot.name}</span>
-                                                </button>
+                                                <div className='flex' key={`team-${bot.id}`}>
+                                                    <i className='ci-sub_right text-[2rem] text-[#32343d] mx-1 my-auto' />
+                                                    <button
+                                                        className='flex mt-2 bg-[#32343d] hover:bg-[#1f2126] transition-colors rounded w-full p-2'
+                                                        onClick={() => {
+                                                            setErrorMsg(null)
+                                                            submit({
+                                                                _action: 'create',
+                                                                method: !bot.internalBotId ? 2 : 1,
+                                                                bot: JSON.stringify({
+                                                                    id: bot.internalBotId || bot.id,
+                                                                    userId: bot.userId,
+                                                                    teamId: bot.teamId,
+                                                                }),
+                                                            }, {
+                                                                method: 'post',
+                                                                replace: true,
+                                                            })
+                                                        }}
+                                                    >
+                                                        <img src={iconUrl} className='rounded-full mr-2 h-8' />
+                                                        <span className='my-auto'>{bot.name}</span>
+                                                    </button>
                                                 </div>
                                             )
                                         })}
