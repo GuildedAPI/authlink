@@ -36,8 +36,7 @@ export async function action({ request }) {
     const guildedData = await boilerplateLoader({request})
     const data = await request.formData()
 
-    if (data.get('_action') === 'create_prompt') {return {_action: 'create_prompt'}}
-    else if (data.get('_action') === 'create') {
+    if (data.get('_action') === 'create') {
         const attempt = await getBotWithMethod(data.get('method'), JSON.parse(data.get('bot')))
         if (attempt.error) {
             return attempt
@@ -88,6 +87,7 @@ export default function Applications() {
     const [strategy, setStrategy] = useState(null)
     const [searchState, setSearchState] = useState([])
     const [selectedTeam, setSelectedTeam] = useState(null)
+    const [showCreatePrompt, setCreatePrompt] = useState(false)
 
     const loaderData = useLoaderData()
     const actionData = useActionData() || {}
@@ -98,16 +98,14 @@ export default function Applications() {
             <ErrorBlock>{actionData.error ? actionData.message : errorMsg}</ErrorBlock>
             <div className='flex'>
                 <h1 className='font-bold text-2xl'>Your Applications</h1>
-                {actionData._action != 'create_prompt' && (
+                {!showCreatePrompt && (
                     <Button
                         className='ml-auto'
-                        onClick={() => {
-                            submit({_action: 'create_prompt'}, {method: 'post', replace: true})
-                        }}
+                        onClick={() => {setCreatePrompt(true)}}
                     >New</Button>
                 )}
             </div>
-            {actionData._action === 'create_prompt' && (
+            {showCreatePrompt && (
                 <div className='mt-2 bg-[#3e3f4a] p-3 rounded border border-white/10 w-full'>
                     {strategy && (
                         <button
@@ -120,7 +118,8 @@ export default function Applications() {
                     )}
                     <h1 className='font-bold text-lg'>New Application</h1>
                     <p>
-                        Applications are created by linking them to bots created inside the Guilded interface (Server settings <i className='ci-long_right' /> Bots).
+                        Applications are created by linking them to bots created inside the Guilded interface
+                        (Server settings <i className='ci-long_right' /> Bots).
                     </p>
                     {strategy === 'id' ? (
                         <label className='text-guilded-subtitle'>
@@ -243,7 +242,7 @@ export default function Applications() {
                                                 {/* TODO: make this the bot svg */}
                                                 <i className='ci-sub_right text-[2rem] text-[#32343d] mx-1 my-auto' />
                                                 <button
-                                                    key={bot.id}
+                                                    key={`team-${bot.id}`}
                                                     className='flex mt-2 bg-[#32343d] hover:bg-[#1f2126] transition-colors rounded w-full p-2'
                                                     onClick={() => {
                                                         setErrorMsg(null)
@@ -302,7 +301,7 @@ export default function Applications() {
                         iconUrl = `https://img.guildedcdn.com/UserAvatar/${app.icon_hash}-Small.png`
                     }
                     return (
-                        <Link to={`/dev/apps/${app.bot_id}`} key={app.bot_id}>
+                        <Link to={`/dev/apps/${app.bot_id}`} key={`app-${app.bot_id}`}>
                             <div className='bg-[#3e3f4a] hover:bg-white/10 transition-colors rounded p-3 mb-2 border border-white/10 w-full flex'>
                                 <img
                                     src={iconUrl}
