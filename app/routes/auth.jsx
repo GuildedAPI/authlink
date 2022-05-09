@@ -129,6 +129,7 @@ export async function action({ request }) {
         JSON.stringify({
             client_id: clientId,
             scopes: scope.split(' '),
+            redirect_uri: redirectUri,
             user_id: guildedData.user.id,
         }),
         {
