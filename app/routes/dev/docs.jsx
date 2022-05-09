@@ -48,6 +48,10 @@ export default function Docs() {
             <pre className={preStyle}>
                 https://oauth.guildedapi.com/v1
             </pre>
+            <p>
+                This is Authlink's API host, <em>not</em> <InlineCode>authlink.guildedapi.com</InlineCode>.
+                Make sure to use the right one when building your application!
+            </p>
             <AnchoredHeader size='2xl' id='create-an-application'>Create an Application</AnchoredHeader>
             <ol className='list-decimal ml-4'>
                 <li>Go to <Link to='/dev/apps' className='text-guilded-link'>your applications page</Link>.</li>
@@ -96,7 +100,7 @@ export default function Docs() {
             </table>
             <AnchoredHeader size='xl' id='authorization-url-structure'>Authorization URL Structure</AnchoredHeader>
             <pre className={preStyle}>
-                https://oauth.guildedapi.com/auth?client_id=62ca5dc8-4de2-4202-a770-3bf87e4433a0&scope=identify+servers&redirect_uri=https%3A%2F%2Fguildedapi.com%2Fcallback&prompt=consent&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
+                https://authlink.guildedapi.com/auth?client_id=5f61fed3-e4b4-4d3c-bfa8-29514b4d675c&scope=identify+servers&redirect_uri=https%3A%2F%2Fauthlink-demo.guildedapi.com%2Fme&prompt=consent&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
             </pre>
             <ul className='list-disc ml-4'>
                 <li><InlineCode>client_id</InlineCode> - your application's client ID. This is the same as the linked bot ID that you created the application with.</li>
@@ -107,7 +111,7 @@ export default function Docs() {
             </ul>
             <AnchoredHeader size='lg' id='redirect-uri'>Redirect URI</AnchoredHeader>
             <pre className={preStyle}>
-                https://guildedapi.com/callback?code=M3oo84JqCYFcToYxjzWKVHEVnmd3Rfol&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
+                https://authlink-demo.guildedapi.com/me?code=M3oo84JqCYFcToYxjzWKVHEVnmd3Rfol&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
             </pre>
             <p>
                 At this point, you should verify the <InlineCode>state</InlineCode> param mentioned above, if you included it.
@@ -139,9 +143,9 @@ export default function Docs() {
                         <td className={tdStyle}>your application's client secret</td>
                     </tr>
                     <tr>
-                        <td className={tdStyle}>grant_type?</td>
+                        <td className={tdStyle}>grant_type</td>
                         <td className={tdStyle}>string</td>
-                        <td className={tdStyle}>defaults to <InlineCode>authorization_code</InlineCode>, but may also be <InlineCode>refresh_token</InlineCode> for refreshing access tokens</td>
+                        <td className={tdStyle}>must be <InlineCode>authorization_code</InlineCode> or <InlineCode>refresh_token</InlineCode></td>
                     </tr>
                     <tr>
                         <td className={tdStyle}>code?</td>
