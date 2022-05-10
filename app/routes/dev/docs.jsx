@@ -46,12 +46,8 @@ export default function Docs() {
             </p>
             <AnchoredHeader size='xl' id='base-url'>Base URL</AnchoredHeader>
             <pre className={preStyle}>
-                https://oauth.guildedapi.com/v1
+                https://authlink.guildedapi.com/api/v1
             </pre>
-            <p>
-                This is Authlink's API host, <em>not</em> <InlineCode>authlink.guildedapi.com</InlineCode>.
-                Make sure to use the right one when building your application!
-            </p>
             <AnchoredHeader size='2xl' id='create-an-application'>Create an Application</AnchoredHeader>
             <ol className='list-decimal ml-4'>
                 <li>Go to <Link to='/dev/apps' className='text-guilded-link'>your applications page</Link>.</li>
