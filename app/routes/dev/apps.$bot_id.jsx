@@ -149,7 +149,7 @@ export default function DevApps() {
 
     let iconUrl = 'https://img.guildedcdn.com/asset/Default/Gil-sm.png'
     if (app.icon_hash) {
-        iconUrl = `https://img.guildedcdn.com/UserAvatar/${app.icon_hash}-Small.png`
+        iconUrl = `https://img.guildedcdn.com/UserAvatar/${app.icon_hash}-Small.webp`
     }
 
     const [uris, setDraftingURIs] = useState(app.redirect_uris)

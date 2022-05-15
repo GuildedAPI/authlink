@@ -296,7 +296,7 @@ export default function Applications() {
                 {loaderData.applications.map((app) => {
                     let iconUrl = 'https://img.guildedcdn.com/asset/Default/Gil-sm.png'
                     if (app.icon_hash) {
-                        iconUrl = `https://img.guildedcdn.com/UserAvatar/${app.icon_hash}-Small.png`
+                        iconUrl = `https://img.guildedcdn.com/UserAvatar/${app.icon_hash}-Small.webp`
                     }
                     return (
                         <Link to={`/dev/apps/${app.bot_id}`} key={`app-${app.bot_id}`}>

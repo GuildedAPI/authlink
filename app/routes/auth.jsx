@@ -83,6 +83,19 @@ export async function loader({ request }) {
         const uri = new URL(redirectUri)
         uri.searchParams.append('code', code)
         if (state) uri.searchParams.append('state', state)
+        await client.set(
+            `guilded_authlink_oauth_code_${code}`,
+            JSON.stringify({
+                client_id: clientId,
+                scopes: scopes,
+                redirect_uri: redirectUri,
+                user_id: guildedData.user.id,
+            }),
+            {
+                EX: 15
+                // 15s is a pretty exorbitant amount of time; it may be shortened later.
+            },
+        )
         return redirect(uri)
     }
     const appRow = appResult.rows[0]
@@ -155,7 +168,7 @@ export default function Authorize() {
 
     let iconUrl = 'https://img.guildedcdn.com/asset/Default/Gil-sm.png'
     if (app.icon_hash) {
-        iconUrl = `https://img.guildedcdn.com/UserAvatar/${app.icon_hash}-Small.png`
+        iconUrl = `https://img.guildedcdn.com/UserAvatar/${app.icon_hash}-Small.webp`
     }
 
     const redirectUri = new URL(data.redirectUri)
