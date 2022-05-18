@@ -54,82 +54,94 @@ export async function action({ request, params }) {
     const guildedData = await boilerplateLoader({request})
     const data = await request.formData()
 
-    if (data.get('_action') === 'set_redirect_uris') {
-        const redirectURIs = data.getAll('redirect_uris')
-        if (redirectURIs.length > 10) {
+    let connection = null
+    switch (data.get('_action')) {
+        case 'set_redirect_uris':
+            const redirectURIs = data.getAll('redirect_uris')
+            if (redirectURIs.length > 10) {
+                return {
+                    error: true,
+                    message: 'Cannot exceed maximum number of redirect URIs (10).',
+                }
+            }
+            for (const uri of redirectURIs) {
+                if (uri.length > 2000) {
+                    return {
+                        error: true,
+                        message: 'Cannot save a redirect URI over 2,000 characters.',
+                    }
+                } else if (!uriRegex.test(uri)) {
+                    return {
+                        error: true,
+                        message: `${uri} is not a valid URI.`,
+                    }
+                }
+            }
+            connection = await pool.acquire()
+            try {
+                const statement = await connection.prepare('UPDATE applications SET redirect_uris = $1 WHERE bot_id = $2 AND owner_id = $3')
+                await statement.execute({params: [JSON.stringify(redirectURIs), params.bot_id, guildedData.user.id]})
+            } finally {
+                await connection.close()
+            }
+            break
+
+        case 'reset_client_secret':
+            const newSecret = generateSecret(params.bot_id)
+            connection = await pool.acquire()
+            try {
+                const statement = await connection.prepare('UPDATE applications SET client_secret = $1 WHERE bot_id = $2 AND owner_id = $3')
+                await statement.execute({params: [newSecret, params.bot_id, guildedData.user.id]})
+            } finally {
+                await connection.close()
+            }
             return {
-                error: true,
-                message: 'Cannot exceed maximum number of redirect URIs (10).',
+                secret: newSecret,
             }
-        }
-        for (const uri of redirectURIs) {
-            if (uri.length > 2000) {
-                return {
-                    error: true,
-                    message: 'Cannot save a redirect URI over 2,000 characters.',
+
+        case 'update_profile':
+            const bot_ = JSON.parse(data.get('bot'))
+            bot_.id = params.bot_id
+            const attempt = await getBotWithMethod(data.get('method'), bot_)
+            if (attempt.error) {
+                return attempt
+            }
+            const bot = attempt.bot
+            connection = await pool.acquire()
+            try {
+                const statement = await connection.prepare('UPDATE applications SET name = $1, icon_hash = $2 WHERE bot_id = $3 AND owner_id = $4')
+                await statement.execute({params: [bot.name, bot.iconHash, params.bot_id, guildedData.user.id]})
+            } finally {
+                await connection.close()
+            }
+            break
+
+        case 'update_linked_server':
+            connection = await pool.acquire()
+            try {
+                const statement = await connection.prepare('UPDATE applications SET show_team = $1 WHERE bot_id = $2 AND owner_id = $3')
+                await statement.execute({params: [data.get('show_linked_server') == 'on', params.bot_id, guildedData.user.id]})
+            } finally {
+                await connection.close()
+            }
+            break
+
+        case 'delete':
+            connection = await pool.acquire()
+            try {
+                const appStatement = await connection.prepare('DELETE FROM applications WHERE bot_id = $1 AND owner_id = $2')
+                const result = await appStatement.execute({params: [params.bot_id, guildedData.user.id]})
+                if (result.rowsAffected > 0) {
+                    const authStatement = await connection.prepare('DELETE FROM authorizations WHERE client_id = $1')
+                    await authStatement.execute({params: [params.bot_id]})
                 }
-            } else if (!uriRegex.test(uri)) {
-                return {
-                    error: true,
-                    message: `${uri} is not a valid URI.`,
-                }
+            } finally {
+                await connection.close()
             }
-        }
-        const connection = await pool.acquire()
-        try {
-            const statement = await connection.prepare('UPDATE applications SET redirect_uris = $1 WHERE bot_id = $2 AND owner_id = $3')
-            await statement.execute({params: [JSON.stringify(redirectURIs), params.bot_id, guildedData.user.id]})
-        } finally {
-            await connection.close()
-        }
-    } else if (data.get('_action') === 'reset_client_secret') {
-        const newSecret = generateSecret(params.bot_id)
-        const connection = await pool.acquire()
-        try {
-            const statement = await connection.prepare('UPDATE applications SET client_secret = $1 WHERE bot_id = $2 AND owner_id = $3')
-            await statement.execute({params: [newSecret, params.bot_id, guildedData.user.id]})
-        } finally {
-            await connection.close()
-        }
-        return {
-            secret: newSecret,
-        }
-    } else if (data.get('_action') === 'update_profile') {
-        const bot_ = JSON.parse(data.get('bot'))
-        bot_.id = params.bot_id
-        const attempt = await getBotWithMethod(data.get('method'), bot_)
-        if (attempt.error) {
-            return attempt
-        }
-        const bot = attempt.bot
-        const connection = await pool.acquire()
-        try {
-            const statement = await connection.prepare('UPDATE applications SET name = $1, icon_hash = $2 WHERE bot_id = $3 AND owner_id = $4')
-            await statement.execute({params: [bot.name, bot.iconHash, params.bot_id, guildedData.user.id]})
-        } finally {
-            await connection.close()
-        }
-    } else if (data.get('_action') == 'update_linked_server') {
-        const connection = await pool.acquire()
-        try {
-            const statement = await connection.prepare('UPDATE applications SET show_team = $1 WHERE bot_id = $2 AND owner_id = $3')
-            await statement.execute({params: [data.get('show_linked_server') == 'on', params.bot_id, guildedData.user.id]})
-        } finally {
-            await connection.close()
-        }
-    } else if (request.method === 'DELETE') {
-        const connection = await pool.acquire()
-        try {
-            const appStatement = await connection.prepare('DELETE FROM applications WHERE bot_id = $1 AND owner_id = $2')
-            const result = await appStatement.execute({params: [params.bot_id, guildedData.user.id]})
-            if (result.rowsAffected > 0) {
-                const authStatement = await connection.prepare('DELETE FROM authorizations WHERE client_id = $1')
-                await authStatement.execute({params: [params.bot_id]})
-            }
-        } finally {
-            await connection.close()
-        }
-        return redirect('/dev/apps')
+            return redirect('/dev/apps')
+
+        default:
+            break
     }
     return null
 }
@@ -205,7 +217,7 @@ export default function DevApps() {
                     <h1 className='font-bold text-2xl text-red-400'>HOLD IT!</h1>
                     <p>Are you sure you want to delete <span className='font-bold'>{app.name}</span> and its {app.authorization_count.toLocaleString()} active authorization{app.authorization_count === 1 ? '' : 's'}?</p>
                     <div className='mt-2'>
-                        <Button stylename='danger' onClick={() => {submit(null, {method: 'delete'})}}>Destroy it!</Button>
+                        <Button stylename='danger' onClick={() => {submit(null, { _action: 'delete' })}}>Destroy it!</Button>
                         <button className='ml-4 text-guilded-subtitle font-bold hover:text-white transition-colors' onClick={() => {setDeletePrompt(false)}}>Actually, no thanks</button>
                     </div>
                 </div>
