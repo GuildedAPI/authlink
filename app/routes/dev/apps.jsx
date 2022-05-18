@@ -156,7 +156,7 @@ export default function Applications() {
                                             method: 'post',
                                             replace: true,
                                         })
-                                        setCreatePrompt(null)
+                                        setCreatePrompt(false)
                                     }}
                                 >
                                     Submit
@@ -257,7 +257,7 @@ export default function Applications() {
                                                                 method: 'post',
                                                                 replace: true,
                                                             })
-                                                            setCreatePrompt(null)
+                                                            setCreatePrompt(false)
                                                         }}
                                                     >
                                                         <img src={iconUrl} className='rounded-full mr-2 h-8' />
