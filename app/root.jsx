@@ -143,7 +143,7 @@ export default function App() {
                 <Meta />
                 <Links />
             </head>
-            <body className='bg-guilded-gray text-guilded-white p-5 mx-auto max-w-2xl'>
+            <body className='bg-guilded-gray text-guilded-white p-5 mx-auto max-w-3xl'>
                 <Navbar data={loaderData} />
                 <Outlet />
                 <ScrollRestoration />
@@ -162,7 +162,7 @@ export function ErrorBoundary({ error }) {
                 <Meta />
                 <Links />
             </head>
-            <body className='bg-guilded-gray text-guilded-white p-5 mx-auto max-w-2xl'>
+            <body className='bg-guilded-gray text-guilded-white p-5 mx-auto max-w-3xl'>
                 <Navbar />
                 <h1 className='font-bold text-2xl'>Something went wrong</h1>
                 <p>{error.message}</p>
@@ -182,7 +182,7 @@ export function CatchBoundary() {
                 <Meta />
                 <Links />
             </head>
-            <body className='bg-guilded-gray text-guilded-white p-5 mx-auto max-w-2xl'>
+            <body className='bg-guilded-gray text-guilded-white p-5 mx-auto max-w-3xl'>
                 <Navbar />
                 <h1 className='font-bold text-2xl'>{data.message || caught.statusText}</h1>
                 <p className='text-guilded-subtitle italic'>Your complimentary status code is {caught.status}.</p>
