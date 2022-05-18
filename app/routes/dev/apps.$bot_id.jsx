@@ -1,4 +1,4 @@
-import { Link, useActionData, useLoaderData, useSubmit } from '@remix-run/react'
+import { Form, Link, useActionData, useLoaderData, useSubmit } from '@remix-run/react'
 import { json, redirect } from '@remix-run/server-runtime'
 
 import { useState } from 'react'
@@ -23,7 +23,7 @@ export async function loader({ request, params }) {
         if (result.rows.length < 1) {
             throw json({message: 'You do not own an application with that ID, or it does not exist.'}, {status: 404})
         }
-        const authStatement = await connection.prepare('SELECT COUNT(*) FROM authorizations WHERE client_id = $1 AND expires_at > NOW()')
+        const authStatement = await connection.prepare('SELECT COUNT(*) FROM authorizations WHERE client_id = $1')
         const authResult = await authStatement.execute({params: [params.bot_id]})
         if (authResult.rows.length > 0) {
             authorizationCount = authResult.rows[0][0]
@@ -40,6 +40,7 @@ export async function loader({ request, params }) {
         icon_hash: row[5],
         user_id: row[6],
         team_id: row[7],
+        show_linked_server: row[11],
         authorization_count: authorizationCount,
     }
 
@@ -105,6 +106,14 @@ export async function action({ request, params }) {
         try {
             const statement = await connection.prepare('UPDATE applications SET name = $1, icon_hash = $2 WHERE bot_id = $3 AND owner_id = $4')
             await statement.execute({params: [bot.name, bot.iconHash, params.bot_id, guildedData.user.id]})
+        } finally {
+            await connection.close()
+        }
+    } else if (data.get('_action') == 'update_linked_server') {
+        const connection = await pool.acquire()
+        try {
+            const statement = await connection.prepare('UPDATE applications SET show_team = $1 WHERE bot_id = $2 AND owner_id = $3')
+            await statement.execute({params: [data.get('show_linked_server') == 'on', params.bot_id, guildedData.user.id]})
         } finally {
             await connection.close()
         }
@@ -330,9 +339,35 @@ export default function DevApps() {
                     </Button>
                 </div>
                 <div className='mt-4'>
-                    <p className='text-guilded-subtitle'>Link Generator</p>
+                    <p className='font-bold text-xl'>Authorization Page</p>
+                    <p className='text-lg'>Support Server</p>
+                    <p className='text-guilded-subtitle text-sm'>
+                        You can optionally specify a server where users are able to reach you for support and questions about your application.
+                        By default, this is your application's internal server.
+                    </p>
+                    <Form
+                        onChange={(e) => {
+                            submit(e.currentTarget, { method: 'post', replace: true })
+                        }}
+                    >
+                        <input
+                            name='_action'
+                            value='update_linked_server'
+                            readOnly
+                            hidden
+                        />
+                        <label>
+                            <input
+                                name='show_linked_server'
+                                type='checkbox'
+                                defaultChecked={app.show_linked_server === null ? true : app.show_linked_server}
+                            />
+                            {' '}Show linked server
+                        </label>
+                    </Form>
+                    <p className='text-lg mt-4'>Link Generator</p>
                     <p><Link to='/dev/docs#authorization' className='text-guilded-link'>Read more about authorization URLs</Link></p>
-                    <h5 className='font-bold mt-2 text-guilded-subtitle'>Scopes</h5>
+                    <h5 className='mt-2 text-guilded-subtitle'>Scopes</h5>
                     <label>
                         <input
                             name='scope'
@@ -359,7 +394,7 @@ export default function DevApps() {
                             onChange={updateSelectedScopes}
                         /> servers.members.read
                     </label>
-                    <h5 className='font-bold mt-2 text-guilded-subtitle'>Prompt</h5>
+                    <h5 className='mt-2 text-guilded-subtitle'>Prompt</h5>
                     <label>
                         <input
                             name='prompt'
@@ -377,7 +412,7 @@ export default function DevApps() {
                             onChange={updateSelectedPrompt}
                         /> none
                     </label>
-                    <h5 className='font-bold mt-2 text-guilded-subtitle'>Redirect URI</h5>
+                    <h5 className='mt-2 text-guilded-subtitle'>Redirect URI</h5>
                     <select
                         className='rounded p-2 bg-guilded-slate border border-white/10'
                         defaultValue='null'
@@ -393,7 +428,7 @@ export default function DevApps() {
                             </option>
                         ))}
                     </select>
-                    <h5 className='font-bold mt-2 text-guilded-subtitle'>Link</h5>
+                    <h5 className='mt-2 text-guilded-subtitle'>Link</h5>
                     <CopyArea value={authURL} id='generated-url' />
                 </div>
             </div>

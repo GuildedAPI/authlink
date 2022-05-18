@@ -105,7 +105,7 @@ export async function loader({ request }) {
             name: appRow[4],
             icon_hash: appRow[5],
             //user_id: appRow[6],
-            team_id: appRow[7],
+            team_id: appRow[11] === false ? null : appRow[7],
             created_at: appRow[8],
             //bot_created_at: appRow[9],
         },
@@ -195,10 +195,10 @@ export default function Authorize() {
                     <i className='ci-clock mr-2 mt-[2px]' />
                     <p>This application was created on {createdAt.toLocaleString('en', {dateStyle: 'medium'})}.</p>
                 </li>
-                {(app.linked_team_id || app.team_id) && (
+                {app.team_id && (
                     <li className='flex'>
                         <i className='ci-location_outline mr-2 mt-[2px]' />
-                        <p>You can reach {app.name}'s developer on <a href={`https://www.guilded.gg/teams/${app.linked_team_id || app.team_id}`} target='_blank' className='text-guilded-link'>its linked server</a>.</p>
+                        <p>You can reach {app.name}'s developer on <a href={`https://www.guilded.gg/teams/${app.team_id}`} target='_blank' className='text-guilded-link'>its linked server</a>.</p>
                         {/*
                             TODO: I'm not really happy with this wording but it's the best I could come up with.
                             "its linked server" is supposed to mean "the application's linked server", but that's too cumbersome.
