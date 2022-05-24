@@ -1,4 +1,4 @@
-import { Form, Link, useActionData, useLoaderData, useSubmit } from '@remix-run/react'
+import { Form, Link, useActionData, useLoaderData, useSubmit, useTransition } from '@remix-run/react'
 import { json, redirect } from '@remix-run/server-runtime'
 
 import { useState } from 'react'
@@ -168,6 +168,7 @@ export default function DevApps() {
     const loaderData = useLoaderData()
     const actionData = useActionData() || {}
     const submit = useSubmit()
+    const transition = useTransition()
     const app = loaderData.application
 
     let iconUrl = 'https://img.guildedcdn.com/asset/Default/Gil-sm.png'
@@ -354,7 +355,16 @@ export default function DevApps() {
                             submit(data, {method: 'post', replace: true})
                             setDraftingURIs(draftingURIs)
                         }}
-                    >Save
+                    >
+                        {
+                            transition.submission && transition.submission.formData.get('_action') === 'set_redirect_uris'
+                            ? transition.state === 'submitting'
+                                ? 'Saving...'
+                                : transition.state === 'loading'
+                                    ? 'Saved'
+                                    : 'Save'
+                            : 'Save'
+                        }
                     </Button>
                 </div>
                 <div className='mt-4'>
