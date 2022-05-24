@@ -57,7 +57,7 @@ export async function action({ request, params }) {
     let connection = null
     switch (data.get('_action')) {
         case 'set_redirect_uris':
-            const redirectURIs = data.getAll('redirect_uris')
+            const redirectURIs = data.getAll('redirect_uri')
             if (redirectURIs.length > 10) {
                 return {
                     error: true,
@@ -73,7 +73,7 @@ export async function action({ request, params }) {
                 } else if (!uriRegex.test(uri)) {
                     return {
                         error: true,
-                        message: `${uri} is not a valid URI.`,
+                        message: `"${uri}" is not a valid URI.`,
                     }
                 }
             }
@@ -84,7 +84,9 @@ export async function action({ request, params }) {
             } finally {
                 await connection.close()
             }
-            break
+            return {
+                redirect_uris: redirectURIs,
+            }
 
         case 'reset_client_secret':
             const newSecret = generateSecret(params.bot_id)
@@ -173,7 +175,8 @@ export default function DevApps() {
         iconUrl = `https://img.guildedcdn.com/UserAvatar/${app.icon_hash}-Small.webp`
     }
 
-    const [uris, setDraftingURIs] = useState(app.redirect_uris)
+    const [error, setError] = useState(null)
+    const [uris, setDraftingURIs] = useState(actionData.redirect_uris ?? app.redirect_uris)
     const draftingURIs = [...uris]
     const [showDeletePrompt, setDeletePrompt] = useState(false)
     const authState = {
@@ -211,7 +214,7 @@ export default function DevApps() {
 
     return (
         <div className='w-full'>
-            <ErrorBlock>{actionData.error && actionData.message}</ErrorBlock>
+            <ErrorBlock>{actionData.error ? actionData.message : error}</ErrorBlock>
             {showDeletePrompt && (
                 <div className='mb-4 bg-[#3e3f4a] p-3 rounded border border-white/10 w-full'>
                     <h1 className='font-bold text-2xl text-red-400'>HOLD IT!</h1>
@@ -250,16 +253,14 @@ export default function DevApps() {
                             label: 'Refresh profile',
                             callback: async () => {
                                 setOpen(false)
-
-                                const errorDiv = document.getElementById('error')
-                                errorDiv.innerText = ''
+                                setError(null)
 
                                 const attempt = await tryBot({bot_id: app.bot_id})
                                 if (!attempt.bot) {
-                                    errorDiv.innerText = 'Bot does not exist or it is not published.'
+                                    setError('Bot does not exist or it is not published.')
                                     return
                                 } else if (attempt.bot.createdBy && attempt.bot.createdBy != loaderData.user.id) {
-                                    errorDiv.innerText = 'You do not own this bot.'
+                                    setError('You do not own this bot.')
                                     return
                                 }
 
@@ -317,6 +318,7 @@ export default function DevApps() {
                                 maxLength={2000}
                                 placeholder='https://example.com/callback'
                                 onChange={(event) => {
+                                    // Update draft cache with the new value
                                     draftingURIs.splice(index, 1, event.target.value)
                                 }}
                             />
@@ -332,7 +334,11 @@ export default function DevApps() {
                         className='mt-2'
                         disabled={uris.length >= 10}
                         onClick={() => {
-                            if (uris.length >= 10) return
+                            if (uris.length >= 10) {
+                                setError('Cannot exceed maximum number of redirect URIs (10).')
+                                return
+                            }
+                            setError(null)
                             draftingURIs.push('')
                             setDraftingURIs(draftingURIs)
                         }}
@@ -344,8 +350,9 @@ export default function DevApps() {
                         onClick={() => {
                             const data = new FormData()
                             data.append('_action', 'set_redirect_uris')
-                            for (const uri of draftingURIs) {data.append('redirect_uris', uri)}
+                            for (const uri of draftingURIs) {data.append('redirect_uri', uri)}
                             submit(data, {method: 'post', replace: true})
+                            setDraftingURIs(draftingURIs)
                         }}
                     >Save
                     </Button>
