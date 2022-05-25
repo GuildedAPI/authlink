@@ -221,7 +221,7 @@ export default function DevApps() {
                     <h1 className='font-bold text-2xl text-red-400'>HOLD IT!</h1>
                     <p>Are you sure you want to delete <span className='font-bold'>{app.name}</span> and its {app.authorization_count.toLocaleString()} active authorization{app.authorization_count === 1 ? '' : 's'}?</p>
                     <div className='mt-2'>
-                        <Button stylename='danger' onClick={() => {submit(null, { _action: 'delete' })}}>Destroy it!</Button>
+                        <Button stylename='danger' onClick={() => {submit({ _action: 'delete' }, { method: 'post' })}}>Destroy it!</Button>
                         <button className='ml-4 text-guilded-subtitle font-bold hover:text-white transition-colors' onClick={() => {setDeletePrompt(false)}}>Actually, no thanks</button>
                     </div>
                 </div>
