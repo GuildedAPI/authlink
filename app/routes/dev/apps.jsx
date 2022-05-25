@@ -8,6 +8,8 @@ import { tryBot, getBotWithMethod } from '~/common/bots'
 import { Button, ErrorBlock } from '~/common/components'
 import { useState } from 'react'
 
+const defaultBotNames = ['XP Bot', 'Howdy Bot', 'Twitch Bot', 'Patreon Bot', 'YouTube Bot']
+
 export async function loader({ request }) {
     const guildedData = await boilerplateLoader({request})
 
@@ -42,6 +44,13 @@ export async function action({ request }) {
             return attempt
         }
         const bot = attempt.bot
+        if ((bot.iconUrl ?? '').includes('DefaultBotAvatars') || defaultBotNames.includes(bot.name)) {
+            // In reality there is no real way to detect this, but this check avoids some weirdness
+            return {
+                error: true,
+                message: 'Cannot create an application using a default bot.',
+            }
+        }
         if (bot.createdBy && bot.createdBy != guildedData.user.id) {
             return {
                 error: true,
@@ -209,6 +218,8 @@ export default function Applications() {
                                                 team.bots = data.bots.filter(bot => (
                                                     bot.enabled
                                                     && !loaderData.applications.map(app => app.bot_id).includes(bot.id)
+                                                    && !(bot.iconUrl ?? '').includes('DefaultBotAvatars')
+                                                    && !defaultBotNames.includes(bot.name)
                                                 ))
                                                 // Unfortunately Guilded doesn't return the bot creator in the above endpoint
                                                 // so we have to check membership role instead, for a guess equating to
