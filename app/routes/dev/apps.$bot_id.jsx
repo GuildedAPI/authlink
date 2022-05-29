@@ -371,8 +371,8 @@ export default function DevApps() {
                     <p className='font-bold text-xl'>Authorization Page</p>
                     <p className='text-lg'>Support Server</p>
                     <p className='text-guilded-subtitle text-sm'>
-                        You can optionally specify a server where users are able to reach you for support and questions about your application.
-                        By default, this is your application's internal server.
+                        This server--your bot's internal server--shows up on your application's authorization page.
+                        If it is not an appropriate place for your users to contact you about your application, you can hide it below.
                     </p>
                     <Form
                         onChange={(e) => {
