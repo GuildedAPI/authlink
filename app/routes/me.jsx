@@ -58,9 +58,7 @@ export async function loader({ request }) {
 export async function action({ request }) {
     const data = await request.formData()
 
-    if (data.get('_action') === 'prompt_deauthorize') {
-        return cloneFormData(data)
-    } else if (data.get('_action') === 'deauthorize') {
+    if (data.get('_action') === 'deauthorize') {
         const guildedData = await boilerplateLoader({request})
         const connection = await pool.acquire()
         try {
@@ -84,6 +82,7 @@ export default function Me() {
     const loaderData = useLoaderData()
     const actionData = useActionData() || {}
     const submit = useSubmit()
+    const [deauthorizePrompt, setDeauthorizePrompt] = useState(null)
 
     // Applications' context menus
     const [open, setOpen] = useState(false)
@@ -179,7 +178,7 @@ export default function Me() {
                                 <h1 className='font-bold text-lg my-auto'>
                                     {app.name}
                                 </h1>
-                                {(actionData._action === 'prompt_deauthorize' && actionData.id === app.bot_id) ? (
+                                {deauthorizePrompt === app.bot_id ? (
                                     <>
                                     <Button
                                         stylename='danger'
@@ -198,10 +197,7 @@ export default function Me() {
                                     <button
                                         className='ml-3 my-auto font-bold text-guilded-subtitle hover:text-white'
                                         onClick={() => {
-                                            submit(null, {
-                                                method: 'get',
-                                                replace: true,
-                                            })
+                                            setDeauthorizePrompt(null)
                                         }}
                                     >Nevermind
                                     </button>
@@ -211,13 +207,7 @@ export default function Me() {
                                         stylename='danger'
                                         className='ml-auto my-auto h-full opacity-0 group-hover:opacity-100 transition-all'
                                         onClick={() => {
-                                            submit({
-                                                _action: 'prompt_deauthorize',
-                                                id: app.bot_id,
-                                            }, {
-                                                method: 'post',
-                                                replace: true,
-                                            })
+                                            setDeauthorizePrompt(app.bot_id)
                                         }}
                                     >Remove
                                     </Button>
