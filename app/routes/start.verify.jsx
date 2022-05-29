@@ -1,12 +1,5 @@
-import {
-    useLoaderData,
-    useSubmit,
-} from '@remix-run/react'
-
-import {
-    redirect,
-    json,
-} from '@remix-run/server-runtime'
+import { useLoaderData, useSubmit } from '@remix-run/react'
+import { redirect, json } from '@remix-run/server-runtime'
 
 import client from '~/redis.server'
 import { getSession, commitSession } from '~/sessions.server'

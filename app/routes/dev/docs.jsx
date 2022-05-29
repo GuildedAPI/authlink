@@ -1,5 +1,5 @@
-import {Link} from '@remix-run/react'
-import {InlineCode} from '~/common/components'
+import { Link } from '@remix-run/react'
+import { InlineCode } from '~/common/components'
 
 function AnchoredHeader(props) {
     return (

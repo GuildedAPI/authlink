@@ -1,8 +1,4 @@
-import {
-    useLoaderData,
-    useSubmit,
-    useTransition,
-} from '@remix-run/react'
+import { useLoaderData, useSubmit, useTransition } from '@remix-run/react'
 
 import { useState } from 'react'
 

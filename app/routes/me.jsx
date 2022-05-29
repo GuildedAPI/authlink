@@ -9,7 +9,6 @@ import { useFloating, shift, useInteractions, useClick } from '@floating-ui/reac
 
 import { scopeNames } from '~/routes/auth'
 import { Button, ErrorBlock, PopoutSelectables } from '~/common/components'
-import { cloneFormData } from '~/common/utilities'
 import images from '~/common/images'
 
 export async function loader({ request }) {
