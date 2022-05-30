@@ -94,7 +94,7 @@ export default function Verify() {
             </p>
             <ol className='list-decimal ml-4 mt-2'>
                 <li>Head over to <a href={`https://www.guilded.gg/profile/${user.id}`} target='_blank' className='text-guilded-link'>your profile</a>.</li>
-                <li>Click on "<b>Post a status</b>" (make sure you're signed in to the right account first!).</li>
+                <li>Click on "<b>Write a Post</b>" (make sure you're signed in to the right account first!).</li>
                 <li>Make the title "<b>{authString}</b>" (without quotes). You can make the content anything you want (go crazy!).</li>
                 {/*<li>Press the "<b>Check</b>" button below this list.</li>*/}
             </ol>
