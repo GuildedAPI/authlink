@@ -96,7 +96,7 @@ export default function Docs() {
             </table>
             <AnchoredHeader size='xl' id='authorization-url-structure'>Authorization URL Structure</AnchoredHeader>
             <pre className={preStyle}>
-                https://authlink.guildedapi.com/auth?client_id=5f61fed3-e4b4-4d3c-bfa8-29514b4d675c&scope=identify+servers&redirect_uri=https%3A%2F%2Fauthlink-demo.guildedapi.com%2Fme&prompt=consent&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
+                https://authlink.guildedapi.com/auth?client_id=5f61fed3-e4b4-4d3c-bfa8-29514b4d675c&scope=identify+servers&redirect_uri=https%3A%2F%2Fauthlinkdemo.guildedapi.com%2Fme&prompt=consent&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
             </pre>
             <ul className='list-disc ml-4'>
                 <li><InlineCode>client_id</InlineCode> - your application's client ID. This is the same as the linked bot ID that you created the application with.</li>
@@ -107,7 +107,7 @@ export default function Docs() {
             </ul>
             <AnchoredHeader size='lg' id='redirect-uri'>Redirect URI</AnchoredHeader>
             <pre className={preStyle}>
-                https://authlink-demo.guildedapi.com/me?code=M3oo84JqCYFcToYxjzWKVHEVnmd3Rfol&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
+                https://authlinkdemo.guildedapi.com/me?code=M3oo84JqCYFcToYxjzWKVHEVnmd3Rfol&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
             </pre>
             <p>
                 At this point, you should verify the <InlineCode>state</InlineCode> param mentioned above, if you included it.
