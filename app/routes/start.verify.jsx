@@ -43,18 +43,22 @@ export async function loader({ request }) {
 export async function action({ request }) {
     const data = await request.formData()
     if (data.get('post_id') && data.get('user_id')) {
-        const authString = await client.get(`guilded_authlink_verify_code_${data.get('user_id')}`)
+        const key = `guilded_authlink_verify_code_${data.get('user_id')}`
+        const authString = await client.get(key)
         if (!authString) {
             throw json({message: 'No auth string is cached for this user. Refresh and try again.'}, { status: 400 })
         }
         const post = await getUserPost(data.get('user_id'), data.get('post_id'))
         if (!post.title) {
             throw json({message: 'This post does not exist.'}, { status: 404 })
+        } else if (post.title !== authString) {
+            throw json({message: 'Auth string does not match provided post title.'}, { status: 400 })
         }
         const userData = await getUser(data.get('user_id'))
         if (!userData.user) {
             throw json({message: userData.message, from_guilded: true}, { status: 400 })
         }
+        await client.set(key, null)
         const session = await getSession(request.headers.get('Cookie'))
         session.set('guilded', {user: userData.user})
         const headers = {
