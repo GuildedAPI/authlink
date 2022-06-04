@@ -18,14 +18,9 @@ export async function loader({ request }) {
     }
 
     const key =`guilded_authlink_verify_code_${data.user.id}`
-    const authData = await client.get(key)
-    let authString = null
-    let code = null
-    if (!authData) {
-        authString = `authlink-${randomString(23)}`
-        code = randomString(32)
-        await client.set(key, JSON.stringify({ authString, code }), { EX: 600 })
-    }
+    const authString = `authlink-${randomString(23)}`
+    const code = randomString(32)
+    await client.set(key, JSON.stringify({ authString, code }), { EX: 600 })
 
     let authQuery = null
     const clientId = url.searchParams.get('client_id')
