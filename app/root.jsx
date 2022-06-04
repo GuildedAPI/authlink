@@ -100,6 +100,11 @@ const Navbar = (props) => {
                     <PopoutSelectables
                         items={[
                             {
+                                icon: <i className='ci-link_02' />,
+                                label: 'Authorized apps',
+                                link: {to: '/me'},
+                            },
+                            {
                                 icon: <i className='ci-external_link' />,
                                 label: 'Your profile',
                                 link: {to: `https://www.guilded.gg/profile/${data.user.id}`, external: true},
