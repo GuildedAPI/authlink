@@ -18,10 +18,13 @@ export async function loader({ request }) {
     }
 
     const key =`guilded_authlink_verify_code_${data.user.id}`
-    let authString = await client.get(key)
-    if (!authString) {
+    const authData = await client.get(key)
+    let authString = null
+    let code = null
+    if (!authData) {
         authString = `authlink-${randomString(23)}`
-        await client.set(key, authString, { EX: 600 })
+        code = randomString(32)
+        await client.set(key, JSON.stringify({ authString, code }), { EX: 600 })
     }
 
     let authQuery = null
@@ -36,18 +39,29 @@ export async function loader({ request }) {
     return {
         user: data.user,
         authString,
+        code,
         authQuery,
     }
 }
 
 export async function action({ request }) {
     const data = await request.formData()
-    if (data.get('post_id') && data.get('user_id')) {
+    if (data.get('post_id') && data.get('user_id') && data.get('code')) {
         const key = `guilded_authlink_verify_code_${data.get('user_id')}`
-        const authString = await client.get(key)
-        if (!authString) {
+        let authData = await client.get(key)
+        if (!authData) {
             throw json({message: 'No auth string is cached for this user. Refresh and try again.'}, { status: 400 })
         }
+        try {
+            authData = JSON.parse(authData)
+        } catch (e) {
+            throw json({message: 'Invalid data is cached. Refresh and try again.'}, {status: 500})
+        }
+        const { authString, code } = authData
+        if (code !== data.get('code')) {
+            throw json({message: 'This error should not happen unless you are attempting to hijack somebody\'s account. Knock it off.'}, { status: 400 })
+        }
+
         const post = await getUserPost(data.get('user_id'), data.get('post_id'))
         if (!post.title) {
             throw json({message: 'This post does not exist.'}, { status: 404 })
@@ -121,7 +135,15 @@ export default function Verify() {
                         errorElement.innerText = 'Couldn\'t find a matching post. Make sure it\'s in the last 10 posts on your profile and that you didn\'t include anything before or after the bolded string from step 3.'
                         return
                     }
-                    submit({post_id: foundPost.id, user_id: user.id, authQuery}, {method: 'post', replace: true})
+                    submit({
+                        post_id: foundPost.id,
+                        user_id: user.id,
+                        authQuery,
+                        code: loaderData.code,
+                    }, {
+                        method: 'post',
+                        replace: true,
+                    })
                 }}
             >Check
             </Button>
