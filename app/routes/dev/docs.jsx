@@ -399,7 +399,7 @@ export default function Docs() {
                     <tr>
                         <td className={tdStyle}>visibility</td>
                         <td className={tdStyle}>string</td>
-                        <td className={tdStyle}>The server's visibility ("default" or "open-entry"). You should never receieve a server with "private" visibility.</td>
+                        <td className={tdStyle}>The server's visibility ("default" or "open-entry"). You should never receive a server with "private" visibility.</td>
                     </tr>
                     <tr>
                         <td className={tdStyle}>avatar</td>
