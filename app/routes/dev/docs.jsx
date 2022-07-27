@@ -86,7 +86,10 @@ export default function Docs() {
                     </tr>
                     <tr>
                         <td className={tdStyle}>servers</td>
-                        <td className={tdStyle}><Link to='#get-current-user-servers' className='text-guilded-link'>/users/@me/servers</Link></td>
+                        <td className={tdStyle}>
+                            <Link to='#get-current-user-servers' className='text-guilded-link'>/users/@me/servers</Link>{' & '}
+                            <Link to='#get-server' className='text-guilded-link'>/servers/{'{server.id}'}</Link>
+                        </td>
                     </tr>
                     <tr>
                         <td className={tdStyle}>servers.members.read</td>
@@ -347,6 +350,315 @@ export default function Docs() {
                 <li>The <InlineCode>memberCount</InlineCode> property may be inaccurate by a considerable margin for larger servers.</li>
                 <li>Permissions and owner status could not be included in this response. If you need this information, use <Link to='#get-current-user-server-member' className='text-guilded-link'>Get Current User Server Member</Link>.</li>
             </ul>
+            <Endpoint method='get' name='Get Server'>/servers/{'{server.id}'}</Endpoint>
+            <p>
+                Get a server that the access token's representing user is a member of.
+                This is not available if the server is private.
+                Requires the <InlineCode>servers</InlineCode> scope.
+            </p>
+            <AnchoredHeader size='md' id='get-server-response'>JSON Response</AnchoredHeader>
+            <table className={tableStyle}>
+                <thead>
+                    <tr>
+                        <td className={trtdStyle}>Field</td>
+                        <td className={trtdStyle}>Type</td>
+                        <td className={trtdStyle}>Description</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td className={tdStyle}>id</td>
+                        <td className={tdStyle}>string</td>
+                        <td className={tdStyle}>The ID of the server.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>name</td>
+                        <td className={tdStyle}>string</td>
+                        <td className={tdStyle}>The name of the server.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>ownerId</td>
+                        <td className={tdStyle}>string</td>
+                        <td className={tdStyle}>The ID of the user that owns the server.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>type?</td>
+                        <td className={tdStyle}>string</td>
+                        <td className={tdStyle}>The type of server as set in its settings page.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>url</td>
+                        <td className={tdStyle}>string</td>
+                        <td className={tdStyle}>The URL slug of the server. There is a deprecated alternative to this property named <InlineCode>subdomain</InlineCode>.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>timezone?</td>
+                        <td className={tdStyle}>string</td>
+                        <td className={tdStyle}>The server's timezone.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>visibility</td>
+                        <td className={tdStyle}>string</td>
+                        <td className={tdStyle}>The server's visibility ("default" or "open-entry"). You should never receieve a server with "private" visibility.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>avatar</td>
+                        <td className={tdStyle}>?string</td>
+                        <td className={tdStyle}>The CDN URL of the server's avatar image. There is a deprecated alternative to this property named <InlineCode>profilePicture</InlineCode>.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>banner</td>
+                        <td className={tdStyle}>?string</td>
+                        <td className={tdStyle}>The CDN URL of the server's banner image. There is a deprecated alternative to this property named <InlineCode>teamDashImage</InlineCode>.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>isRecruiting?</td>
+                        <td className={tdStyle}>boolean</td>
+                        <td className={tdStyle}>Whether the server is accepting new member applications.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>isVerified?</td>
+                        <td className={tdStyle}>boolean</td>
+                        <td className={tdStyle}>Whether the server is verified.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>isDiscoverable?</td>
+                        <td className={tdStyle}>boolean</td>
+                        <td className={tdStyle}>Whether the server is discoverable. This is different from <InlineCode>visibility</InlineCode>.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>followerCount?</td>
+                        <td className={tdStyle}>integer</td>
+                        <td className={tdStyle}>The number of followers that the server has.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>memberCount</td>
+                        <td className={tdStyle}>integer</td>
+                        <td className={tdStyle}>The number of members that the server has. A value of <InlineCode>0</InlineCode> indicates that Authlink could not get the value from Guilded.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>rolesById</td>
+                        <td className={tdStyle}>object (string:<Link to='#role-object' className='text-guilded-link'>Role</Link>)</td>
+                        <td className={tdStyle}>The roles in the server.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <AnchoredHeader size='md' id='role-object'>Role Object</AnchoredHeader>
+            <table className={tableStyle}>
+                <thead>
+                    <tr>
+                        <td className={trtdStyle}>Field</td>
+                        <td className={trtdStyle}>Type</td>
+                        <td className={trtdStyle}>Description</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td className={tdStyle}>id</td>
+                        <td className={tdStyle}>integer</td>
+                        <td className={tdStyle}>The ID of the role.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>name</td>
+                        <td className={tdStyle}>string</td>
+                        <td className={tdStyle}>The name of the role.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>color?</td>
+                        <td className={tdStyle}>?integer</td>
+                        <td className={tdStyle}>The role's primary color.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>color2?</td>
+                        <td className={tdStyle}>?integer</td>
+                        <td className={tdStyle}>The role's secondary color, for gradient roles.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>priority</td>
+                        <td className={tdStyle}>integer</td>
+                        <td className={tdStyle}>The priority of the role. Not to be confused with the displayed position of the role.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>createdAt</td>
+                        <td className={tdStyle}>string (ISO8601 timestamp)</td>
+                        <td className={tdStyle}>When the role was created.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>updatedAt?</td>
+                        <td className={tdStyle}>?string (ISO8601 timestamp)</td>
+                        <td className={tdStyle}>When the role was last updated.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>isBase?</td>
+                        <td className={tdStyle}>boolean</td>
+                        <td className={tdStyle}>Whether the role is the server's base member role.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>isMentionable?</td>
+                        <td className={tdStyle}>boolean</td>
+                        <td className={tdStyle}>Whether the role is mentionable by all members.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>isSelfAssignable?</td>
+                        <td className={tdStyle}>boolean</td>
+                        <td className={tdStyle}>Whether the role is self-assignable without the Manage Roles permission.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>isDisplayedSeparately?</td>
+                        <td className={tdStyle}>boolean</td>
+                        <td className={tdStyle}>Whether the role is displayed separately from other roles (or "hoisted").</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>serverId</td>
+                        <td className={tdStyle}>string</td>
+                        <td className={tdStyle}>The ID of the server that the role is in.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>permissions</td>
+                        <td className={tdStyle}>object (string:integer)</td>
+                        <td className={tdStyle}>The role's permissions.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>discordRoleId?</td>
+                        <td className={tdStyle}>string (snowflake)</td>
+                        <td className={tdStyle}>The ID of the Discord role that this role is synced to.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>discordSyncedAt?</td>
+                        <td className={tdStyle}>string (ISO8601 timestamp)</td>
+                        <td className={tdStyle}>When this role was last synced to Discord.</td>
+                    </tr>
+                    <tr>
+                        <td className={tdStyle}>bot?</td>
+                        <td className={tdStyle}>object</td>
+                        <td className={tdStyle}>Information about the bot that the role is for. Contains a <InlineCode>userId</InlineCode> key - the user ID of the bot.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <AnchoredHeader size='md' id='get-server-example'>JSON Response Example</AnchoredHeader>
+            <pre className={preStyle}>
+                {JSON.stringify({
+                    id: 'wlVr3Ggl',
+                    name: 'Guilded',
+                    url: 'Guilded-Official',
+                    about: 'The Official Guilded Team! For devs, friends, and fans alike!',
+                    timezone: 'America\/Los Angeles (PST\/PDT)',
+                    type: 'community',
+                    visibility: 'open-entry',
+                    createdAt: '2018-10-05T19:25:13.449Z',
+                    ownerId: 'R403kZxA',
+                    avatar: 'https:\/\/s3-us-west-2.amazonaws.com\/www.guilded.gg\/TeamAvatar\/f3ca3496e7f2b6bfaeddfbb6526bdec7-Large.png?w=450&h=450',
+                    banner: 'https:\/\/s3-us-west-2.amazonaws.com\/www.guilded.gg\/TeamBanner\/fe3137f65c9f6d93658c8ed99b1a2ac8-Hero.png?w=1500&h=500',
+                    socialInfo: {
+                        twitch: 'https:\/\/www.twitch.tv\/teamguilded',
+                        twitter: '@teamguilded',
+                        youtube: 'https:\/\/www.youtube.com\/guildedgg',
+                        facebook: 'Guilded.gg'
+                    },
+                    isRecruiting: true,
+                    isVerified: true,
+                    isDiscoverable: true,
+                    followerCount: 1878,
+                    gameIds: [ 350074, 216000, 10300, 104200, 10800, 10100 ],
+                    flairs: [ { id: 3 }, { id: 1, amount: 323 }, { id: 6 } ],
+                    memberCount: 24965,
+                    rolesById: {
+                        '590401': {
+                            id: 590401,
+                            name: 'Member',
+                            color: 13750741,
+                            permissions: {
+                                chat: 35,
+                                docs: 2,
+                                forms: 16,
+                                lists: 2,
+                                media: 2,
+                                voice: 4163,
+                                forums: 67,
+                                streams: 192,
+                                calendar: 2,
+                                announcements: 2
+                            },
+                            priority: -11,
+                            createdAt: '2018-10-05T19:25:16.216Z',
+                            updatedAt: '2022-07-02T19:52:15.795Z',
+                            isBase: true,
+                            isMentionable: true,
+                            isSelfAssignable: false,
+                            isDisplayedSeparately: true,
+                            serverId: 'wlVr3Ggl'
+                        },
+                        '591232': {
+                            id: 591232,
+                            name: 'Guilded Staff',
+                            color: 10637544,
+                            permissions: {
+                                xp: 1,
+                                bots: 1,
+                                chat: 503,
+                                docs: 15,
+                                forms: 18,
+                                lists: 63,
+                                media: 15,
+                                voice: 8179,
+                                forums: 123,
+                                general: 64564,
+                                streams: 243,
+                                brackets: 3,
+                                calendar: 31,
+                                scheduling: 11,
+                                matchmaking: 20,
+                                recruitment: 55,
+                                announcements: 7,
+                                customization: 49
+                            },
+                            priority: 17,
+                            color2: 3188367,
+                            createdAt: '2018-10-05T21:27:27.522Z',
+                            updatedAt: '2022-07-02T00:14:29.845Z',
+                            discordRoleId: '497837817569869824',
+                            discordSyncedAt: '2018-10-05T22:50:38.864Z',
+                            isMentionable: false,
+                            isSelfAssignable: false,
+                            isDisplayedSeparately: true,
+                            serverId: 'wlVr3Ggl'
+                        },
+                        '25746098': {
+                            id: 25746098,
+                            name: 'Bot',
+                            color: 8296183,
+                            permissions: {
+                                xp: 1,
+                                bots: 1,
+                                chat: 503,
+                                docs: 15,
+                                forms: 18,
+                                lists: 63,
+                                media: 15,
+                                voice: 8179,
+                                forums: 123,
+                                general: 130100,
+                                streams: 243,
+                                brackets: 3,
+                                calendar: 31,
+                                scheduling: 11,
+                                matchmaking: 20,
+                                recruitment: 55,
+                                announcements: 7,
+                                customization: 49
+                            },
+                            priority: 18,
+                            color2: 6654968,
+                            createdAt: '2021-11-30T23:41:42.940Z',
+                            updatedAt: '2022-07-02T00:14:29.845Z',
+                            isMentionable: false,
+                            isSelfAssignable: false,
+                            isDisplayedSeparately: false,
+                            serverId: 'wlVr3Ggl'
+                        }
+                    }
+                }, null, 4)}
+            </pre>
             <Endpoint method='get' name='Get Current User Server Member'>/users/@me/servers/{'{server.id}'}/member</Endpoint>
             <p>
                 Get the access token's representing user's member object for a specific server.
