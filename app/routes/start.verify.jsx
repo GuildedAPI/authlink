@@ -67,7 +67,7 @@ export async function action({ request }) {
         if (!userData.user) {
             throw json({message: userData.message, from_guilded: true}, { status: 400 })
         }
-        await client.set(key, null)
+        await client.del(key)
         const session = await getSession(request.headers.get('Cookie'))
         session.set('guilded', {user: userData.user})
         const headers = {
