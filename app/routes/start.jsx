@@ -31,7 +31,7 @@ export async function loader({ request }) {
     return data
 }
 
-const profileRegex = /^https?:\/\/(?:www\.)?guilded\.gg\/profile\/([a-zA-Z0-9]{8,10})$/
+const profileRegex = /^(?:https?:\/\/(?:www\.)?guilded\.gg\/profile\/)?([a-zA-Z0-9]{8,10})$/
 
 export default function Start() {
     const [searchState, setSearchState] = useState([])
