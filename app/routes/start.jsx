@@ -160,7 +160,7 @@ export default function Start() {
                 <input
                     className='w-full bg-transparent ml-2 peer'
                     pattern={profileRegex.source}
-                    placeholder='https://guilded.gg/profile/EdVMVKR4'
+                    placeholder='https://www.guilded.gg/profile/EdVMVKR4'
                     onChange={async (event) => {
                         setSelectedUser(null)
                         const value = event.target.value
