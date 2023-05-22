@@ -63,7 +63,7 @@ const Navbar = (props) => {
   ]);
 
   return (
-    <div className="mr-2 mb-3 rounded-md flex text-sm">
+    <div className="px-2 mb-3 rounded-md flex text-sm sticky top-5 bg-guilded-slate border border-guilded-white/10">
       <div className="my-auto">
         <img
           src="/images/Guilded_Logomark_White.svg"
@@ -73,7 +73,7 @@ const Navbar = (props) => {
       </div>
       <div className="my-auto">
         <p className="text-guilded-subtitle text-xs">
-          This site is not affiliated with guilded.gg.
+          This site is not affiliated with <a href="https://guilded.gg" className="hover:underline hover:text-guilded-white">guilded.gg</a>.
         </p>
       </div>
       <div className="ml-auto my-auto">
@@ -171,7 +171,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="bg-guilded-gray text-guilded-white p-5 mx-auto max-w-3xl">
+      <body className="bg-guilded-gray text-guilded-white p-5 mx-auto">
         <Navbar data={loaderData} />
         <Outlet />
         <ScrollRestoration />
@@ -190,7 +190,7 @@ export function ErrorBoundary({ error }) {
         <Meta />
         <Links />
       </head>
-      <body className="bg-guilded-gray text-guilded-white p-5 mx-auto max-w-3xl">
+      <body className="bg-guilded-gray text-guilded-white p-5 mx-auto">
         <Navbar />
         <h1 className="font-bold text-2xl">Something went wrong</h1>
         <p>{error.message}</p>
@@ -220,7 +220,7 @@ export function CatchBoundary() {
         <Meta />
         <Links />
       </head>
-      <body className="bg-guilded-gray text-guilded-white p-5 mx-auto max-w-3xl">
+      <body className="bg-guilded-gray text-guilded-white p-5 mx-auto">
         <Navbar />
         <h1 className="font-bold text-2xl">
           {data.message || caught.statusText}

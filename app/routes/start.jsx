@@ -47,7 +47,7 @@ export default function Start() {
   const authQueryParams = authQuery ? new URLSearchParams(authQuery) : null;
 
   return (
-    <div>
+    <div className="max-w-4xl mx-auto">
       {authQuery && (
         <div className="mb-4 bg-[#3e3f4a] p-3 rounded border border-white/10 w-full">
           <h1 className="font-bold text-2xl">Why am I here?</h1>

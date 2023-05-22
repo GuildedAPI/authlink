@@ -126,6 +126,12 @@ async function searchBots(query) {
   return data.results.botsAndMetas;
 }
 
+export const meta = () => {
+  return {
+    title: 'Your Apps - Guilded Authlink'
+  }
+}
+
 export default function Applications() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [strategy, setStrategy] = useState(null);
@@ -139,7 +145,7 @@ export default function Applications() {
   const submit = useSubmit();
 
   return (
-    <div className="w-full">
+    <div className="grow">
       <ErrorBlock>
         {actionData.error ? actionData.message : errorMsg}
       </ErrorBlock>

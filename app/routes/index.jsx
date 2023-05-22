@@ -2,7 +2,7 @@ import { Link } from "@remix-run/react";
 
 export default function Index() {
   return (
-    <div>
+    <div className="max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold">Guilded Authlink</h1>
       <p>
         This is a third-party site that implements the OAuth2 standard for{" "}

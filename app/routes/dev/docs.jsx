@@ -17,31 +17,41 @@ function AnchoredHeader(props) {
 
 function Endpoint(props) {
   return (
-    <div>
+    <div className="mt-6 mb-2">
       <AnchoredHeader
         size="xl"
         id={props.name.replace(/ /g, "-").toLowerCase()}
       >
         {props.name}
       </AnchoredHeader>
-      <code className="text-xl uppercase font-bold mr-2 text-guilded-gilded">
-        {props.method}
-      </code>
-      <code className="text-xl">{props.children}</code>
+      <p className="text-lg">
+        <code className="uppercase font-bold mr-2 bg-guilded-gilded text-guilded-black rounded px-2 py-0.5">
+          {props.method}
+        </code>
+        <code>{props.children}</code>
+      </p>
     </div>
   );
 }
 
-const preStyle = "bg-guilded-slate rounded p-2 overflow-auto";
-const tableStyle = "mt-2 bg-guilded-slate w-full text-sm";
+const preStyle =
+  "bg-guilded-slate rounded p-2 overflow-auto whitespace-pre-wrap w-full";
+const tableStyle = "mt-2 bg-guilded-slate text-sm";
 const tdStyle = "px-2 py-1 border border-white/10";
 const trtdStyle = tdStyle + " font-bold bg-guilded-black";
 
+export const meta = () => {
+  return {
+    title: "API Docs - Guilded Authlink",
+  };
+};
+
 export default function Docs() {
   return (
-    <div className="max-w-full sm:max-w-[80%]">
+    <div>
+      <h1 className="font-bold text-2xl">API Docs</h1>
       <p>
-        Below is the documentation for the Guilded Authlink API. You can read
+        This is the documentation for the Guilded Authlink API. You can read
         about what this website does{" "}
         <Link to="/" className="text-guilded-link">
           here
