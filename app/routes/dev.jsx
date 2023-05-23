@@ -2,7 +2,8 @@ import { redirect } from "@remix-run/server-runtime";
 import { Outlet, Link } from "@remix-run/react";
 
 export async function loader({ request }) {
-  if (new URL(request.url).pathname === "/dev") return redirect("/dev/docs");
+  if (new URL(request.url).pathname.match(/^\/dev\/?$/i))
+    return redirect("/dev/docs");
   return null;
 }
 
