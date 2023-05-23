@@ -35,7 +35,7 @@ function Endpoint(props) {
 }
 
 const preStyle =
-  "bg-guilded-slate rounded p-2 overflow-auto whitespace-pre-wrap w-full";
+  "bg-guilded-slate rounded p-2 overflow-auto break-all whitespace-pre-wrap";
 const tableStyle = "mt-2 bg-guilded-slate text-sm";
 const tdStyle = "px-2 py-1 border border-white/10";
 const trtdStyle = tdStyle + " font-bold bg-guilded-black";
