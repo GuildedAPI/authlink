@@ -85,6 +85,7 @@ export async function loader({ request, params }) {
 
   const session = await getSession(request.headers.get("Cookie"));
   if (!session.has("guilded")) {
+    query.set("a", code);
     return redirect(`/start?${query}`);
   }
   const guildedData = session.get("guilded");

@@ -23,11 +23,12 @@ export async function loader({ request }) {
   await client.set(key, JSON.stringify({ authString, code }), { EX: 600 });
 
   let authQuery = null;
-  const clientId = url.searchParams.get("client_id");
-  const scope = url.searchParams.get("scope");
-  const redirectUri = url.searchParams.get("redirect_uri");
+  const vanityCode = url.searchParams.get("a"),
+    clientId = url.searchParams.get("client_id"),
+    scope = url.searchParams.get("scope"),
+    redirectUri = url.searchParams.get("redirect_uri");
   // Required parameters for successful flow completion
-  if (clientId && scope && redirectUri) {
+  if ((clientId && scope && redirectUri) || vanityCode) {
     authQuery = String(url.searchParams);
   }
 
@@ -101,14 +102,25 @@ export async function action({ request }) {
       params.forEach((_, key) => {
         // This is a weird workaround to an inconsequential issue where the `id` param would be passed through the flow.
         if (
-          !["client_id", "scope", "redirect_uri", "state", "prompt"].includes(
-            key
-          )
+          ![
+            "client_id",
+            "scope",
+            "redirect_uri",
+            "state",
+            "prompt",
+            "a",
+          ].includes(key)
         ) {
           params.delete(key);
         }
       });
-      return redirect(`/auth?${params}`, { headers });
+      const vanityCode = params.get("a");
+      if (vanityCode) {
+        params.delete("a");
+        return redirect(`/a/${vanityCode}?${params}`, { headers });
+      } else {
+        return redirect(`/auth?${params}`, { headers });
+      }
     }
     return redirect("/me", { headers });
   }

@@ -17,11 +17,13 @@ async function searchUsers(query) {
 export async function loader({ request }) {
   const data = {};
   const url = new URL(request.url);
-  const clientId = url.searchParams.get("client_id");
-  const scope = url.searchParams.get("scope");
-  const redirectUri = url.searchParams.get("redirect_uri");
+  const vanityCode = url.searchParams.get("a"),
+    clientId = url.searchParams.get("client_id"),
+    scope = url.searchParams.get("scope"),
+    redirectUri = url.searchParams.get("redirect_uri");
+
   // Required parameters for successful flow completion
-  if (clientId && scope && redirectUri) {
+  if ((clientId && scope && redirectUri) || vanityCode) {
     data.authQuery = String(url.searchParams);
   }
   const session = await getSession(request.headers.get("Cookie"));
@@ -43,7 +45,7 @@ export default function Start() {
   const submit = useSubmit();
 
   let authQuery = loaderData.authQuery;
-  if (authQuery == "undefined") authQuery = undefined;
+  if (authQuery === "undefined") authQuery = undefined;
   const authQueryParams = authQuery ? new URLSearchParams(authQuery) : null;
 
   return (
