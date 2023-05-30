@@ -136,7 +136,7 @@ export default function Verify() {
   const authQuery = loaderData.authQuery;
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-3xl mx-auto">
       <ErrorBlock />
       <h1 className="text-3xl font-bold">
         Are you <em>really</em> {user.name}?

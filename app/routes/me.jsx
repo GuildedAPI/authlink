@@ -132,7 +132,7 @@ export default function Me() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-3xl mx-auto">
       <ErrorBlock>{actionData.error && actionData.message}</ErrorBlock>
       <h1 className="font-bold text-2xl">You!</h1>
       <div className="mt-2 bg-[#3e3f4a] p-3 rounded border border-white/10 w-full flex">
