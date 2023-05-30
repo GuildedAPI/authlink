@@ -190,7 +190,7 @@ export async function action({ request }) {
 }
 
 export default function Verify() {
-  const { flow, user, authString, correctString, messageUrl, authQuery } =
+  const { flow, user, authString, code, correctString, messageUrl, authQuery } =
     useLoaderData();
   const submit = useSubmit();
 
@@ -271,7 +271,7 @@ export default function Verify() {
                   post_id: foundPost.id,
                   user_id: user.id,
                   authQuery,
-                  code: loaderData.code,
+                  code,
                 },
                 {
                   method: "post",
