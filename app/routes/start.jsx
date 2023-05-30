@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { getSession } from "~/sessions.server";
 import { Button } from "~/common/components";
-import { search, getUser } from "~/common/guilded";
+import { search, getUser, getSubdomain } from "~/common/guilded";
 
 const searchCache = {};
 const userCache = {};
@@ -33,8 +33,13 @@ export async function loader({ request }) {
   return data;
 }
 
-const profileRegex =
+const profileIdRegex =
   /^(?:https?:\/\/(?:www\.)?guilded\.gg\/profile\/)?([a-zA-Z0-9]{8,10})$/;
+const profileVanityRegex =
+  /^(?:https?:\/\/(?:www\.)?guilded\.gg\/u\/)?([a-zA-Z0-9-]{3,32})$/;
+const profileRegex = new RegExp(
+  profileIdRegex.source + "|" + profileVanityRegex.source
+);
 
 export default function Start() {
   const [searchState, setSearchState] = useState([]);
@@ -181,7 +186,7 @@ export default function Start() {
         Can't find yourself?
       </h3>
       <p className="text-guilded-subtitle">
-        Enter your profile URL directly to continue manually:
+        Enter your profile URL to continue manually:
       </p>
       <div className="w-full mt-1 px-3 py-2 rounded bg-guilded-slate">
         <label className="flex">
@@ -193,26 +198,36 @@ export default function Start() {
           <input
             className="w-full bg-transparent ml-2 peer"
             pattern={profileRegex.source}
-            placeholder="https://www.guilded.gg/profile/EdVMVKR4"
+            placeholder="https://www.guilded.gg/u/shay"
             onChange={async (event) => {
               setSelectedUser(null);
               const value = event.target.value;
               const match = value.match(profileRegex);
               if (!match) return;
 
-              const id = match[1];
-              let user = userCache[id];
-              if (!user) {
-                const data = await getUser(id);
-                user = data.user;
-                if (!user) {
-                  // TODO: Show error
-                  return;
+              let id = match[1];
+              const vanityCode = match[2];
+              if (vanityCode && !id) {
+                const data = await getSubdomain(vanityCode);
+                if (data.userId) {
+                  id = data.userId;
                 }
-                userCache[id] = user;
               }
-              setSearchState([]);
-              setSelectedUser(user);
+
+              if (id) {
+                let user = userCache[id];
+                if (!user) {
+                  const data = await getUser(id);
+                  user = data.user;
+                  if (!user) {
+                    // TODO: Show error
+                    return;
+                  }
+                  userCache[id] = user;
+                }
+                setSearchState([]);
+                setSelectedUser(user);
+              }
             }}
           />
         </label>

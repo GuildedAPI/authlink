@@ -35,6 +35,10 @@ async function request(method, path, props = {}) {
   return await response.data();
 }
 
+export async function getSubdomain(subdomain) {
+  return await request("GET", `/subdomains/${subdomain}`);
+}
+
 export async function getUser(id) {
   return await request("GET", `/users/${id}`);
 }
