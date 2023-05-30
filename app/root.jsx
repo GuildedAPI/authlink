@@ -63,7 +63,7 @@ const Navbar = (props) => {
   ]);
 
   return (
-    <div className="px-2 mb-3 rounded-md flex text-sm sticky top-5 bg-guilded-slate border border-guilded-white/10">
+    <div className="px-2 mb-6 rounded-md flex text-sm sticky top-5 bg-guilded-slate border border-guilded-white/10">
       <div className="my-auto">
         <img
           src="/images/Guilded_Logomark_White.svg"
@@ -73,7 +73,14 @@ const Navbar = (props) => {
       </div>
       <div className="my-auto">
         <p className="text-guilded-subtitle text-xs">
-          This site is not affiliated with <a href="https://guilded.gg" className="hover:underline hover:text-guilded-white">guilded.gg</a>.
+          This site is not affiliated with{" "}
+          <a
+            href="https://guilded.gg"
+            className="hover:underline hover:text-guilded-white"
+          >
+            guilded.gg
+          </a>
+          .
         </p>
       </div>
       <div className="ml-auto my-auto">

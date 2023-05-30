@@ -11,7 +11,7 @@ export default function Developers() {
   return (
     <div className="flex flex-wrap sm:flex-nowrap">
       <div
-        className="shrink-0 mb-4 w-full sm:w-44 sm:mb-0 sm:mr-4 h-full sm:sticky top-[4.6rem]"
+        className="shrink-0 mb-4 w-full sm:w-44 sm:mb-0 sm:mr-4 h-full sm:sticky top-[4.5rem]"
         id="sidebar"
       >
         <div className="bg-guilded-slate p-2 rounded border border-guilded-white/10">

@@ -131,7 +131,7 @@ export default function Start() {
                 setSelectedUser(null);
               }}
             >
-              I've never met this man in my life
+              No way
             </button>
           </div>
         </div>
