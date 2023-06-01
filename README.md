@@ -4,7 +4,7 @@ This service provides an OAuth2 implementation for developers looking to integra
 
 ## Resources
 
-- [API Documentation](https://authlink.guildedapi.com/dev/docs)
+- [API Documentation](https://authlink.app/dev/docs)
 - [Demonstration app (Remix)](https://github.com/GuildedAPI/authlink-demo)
 - [`next-auth-guilded` (NextAuth for Next.js)](https://github.com/GuildedAPI/next-auth-guilded)
 
