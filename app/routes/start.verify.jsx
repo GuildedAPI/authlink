@@ -14,6 +14,49 @@ import {
   sendVerificationMessage,
 } from "../bot.server";
 
+const findUsableServer = async (userId, preferServerId) => {
+  const connection = await pool.acquire();
+  let result = null;
+  try {
+    const statement = await connection.prepare(
+      `
+      SELECT
+        servers.id,
+        servers.name,
+        servers.avatar,
+        servers_config.auth_channel_id
+      FROM
+        servers,
+        servers_config,
+        members
+      WHERE
+        members.user_id = $1
+        AND servers.id = members.server_id
+        AND servers_config.server_id = members.server_id
+        AND servers_config.auth_channel_id IS NOT NULL
+      `
+    );
+    result = await statement.execute({ params: [userId] });
+  } finally {
+    await connection.close();
+  }
+
+  if (result?.rows.length) {
+    const row =
+      (preferServerId
+        ? result.rows.find((r) => r[0] === preferServerId)
+        : undefined) ?? result.rows[0];
+    return {
+      id: row[0],
+      name: row[1],
+      avatar: row[2],
+      authChannelId: row[3],
+    };
+  }
+
+  return null;
+};
+
 export async function loader({ request }) {
   const url = new URL(request.url);
   if (!url.searchParams.get("id")) {
@@ -34,31 +77,22 @@ export async function loader({ request }) {
     authQuery = String(url.searchParams);
   }
 
-  const member = await fetchServerMember(
-    AUTHLINK_SERVER_ID,
-    url.searchParams.get("id")
-  );
-  if (member) {
-    // We can use our more secure method
-    const authStrings = [randomDigits(3), randomDigits(3), randomDigits(3)];
-    const correctString =
-      authStrings[Math.floor(Math.random() * authStrings.length)];
-    const code = randomString(32);
+  const messageAuthServer = await findUsableServer(url.searchParams.get("id"));
+  if (messageAuthServer) {
+    // Make sure the member is still in the server
+    const member = await fetchServerMember(
+      messageAuthServer.id,
+      url.searchParams.get("id")
+    );
+    if (member) {
+      // We can use our more secure method
+      const authStrings = [randomDigits(3), randomDigits(3), randomDigits(3)];
+      const correctString =
+        authStrings[Math.floor(Math.random() * authStrings.length)];
+      const code = randomString(32);
 
-    const connection = await pool.acquire();
-    let result = null;
-    try {
-      const statement = await connection.prepare(
-        "SELECT * FROM servers_config WHERE server_id = $1"
-      );
-      result = await statement.execute({ params: [member.serverId] });
-    } finally {
-      await connection.close();
-    }
-    if (result?.rows.length && result.rows[0][2]) {
-      const authChannelId = result.rows[0][2];
       const message = await sendVerificationMessage(
-        authChannelId,
+        messageAuthServer.authChannelId,
         member.id,
         authStrings
       );
@@ -164,7 +198,7 @@ export async function action({ request }) {
     }
     await client.del(key);
     authorizedUser = userData.user;
-  } else if (data.get('message_id')) {
+  } else if (data.get("message_id")) {
     const key = `guilded_authlink_verify_code_short_${data.get("message_id")}`;
     let authData = await client.get(key);
     if (!authData) {
@@ -195,7 +229,7 @@ export async function action({ request }) {
       );
     }
 
-    if (status !== 'verified') {
+    if (status !== "verified") {
       throw json(
         { message: "This authorization attempt has not been verified." },
         { status: 400 }
@@ -210,7 +244,7 @@ export async function action({ request }) {
       );
     }
     // await client.del(key);
-    authorizedUser = userData.user
+    authorizedUser = userData.user;
   }
 
   if (authorizedUser) {
