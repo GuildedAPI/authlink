@@ -8,11 +8,7 @@ import { getSession, commitSession } from "~/sessions.server";
 import { getUser, getUserPost, getUserPosts } from "~/common/guilded";
 import { randomString, randomDigits } from "~/common/random";
 import { Button, ErrorBlock } from "~/common/components";
-import {
-  AUTHLINK_SERVER_ID,
-  fetchServerMember,
-  sendVerificationMessage,
-} from "../bot.server";
+import { fetchServerMember, sendVerificationMessage } from "../bot.server";
 
 const findUsableServer = async (userId, preferServerId) => {
   const connection = await pool.acquire();
