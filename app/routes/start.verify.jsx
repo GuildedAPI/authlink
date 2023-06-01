@@ -290,7 +290,7 @@ export default function Verify() {
     if (flow === "message") {
       const messageId = new URL(messageUrl).searchParams.get("messageId");
       const interval = setInterval(() => {
-        fetch(`/api/verifications/${messageId}`).then((r) =>
+        fetch(`/data/verifications/${messageId}`).then((r) =>
           r.json().then((d) => {
             if (!d.status) {
               setVerifyStatus("expired");
