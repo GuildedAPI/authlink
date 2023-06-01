@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useLoaderData, useSubmit } from "@remix-run/react";
 import { redirect, json } from "@remix-run/server-runtime";
 
@@ -42,6 +43,7 @@ export async function loader({ request }) {
     const authStrings = [randomDigits(3), randomDigits(3), randomDigits(3)];
     const correctString =
       authStrings[Math.floor(Math.random() * authStrings.length)];
+    const code = randomString(32);
 
     const connection = await pool.acquire();
     let result = null;
@@ -63,7 +65,13 @@ export async function loader({ request }) {
       if (message) {
         await client.set(
           `guilded_authlink_verify_code_short_${message.id}`,
-          JSON.stringify({ authStrings, correctString, userId: member.id }),
+          JSON.stringify({
+            authStrings,
+            correctString,
+            code,
+            userId: member.id,
+            status: "pending",
+          }),
           { EX: 600 }
         );
 
@@ -76,6 +84,7 @@ export async function loader({ request }) {
           },
           messageUrl: `https://www.guilded.gg/teams/${message.serverId}/groups/${message.raw.groupId}/channels/${message.channelId}/chat?messageId=${message.id}`,
           correctString,
+          code,
           authQuery,
         };
       }
@@ -104,6 +113,8 @@ export async function loader({ request }) {
 
 export async function action({ request }) {
   const data = await request.formData();
+  let authorizedUser;
+
   if (data.get("post_id") && data.get("user_id") && data.get("code")) {
     const key = `guilded_authlink_verify_code_${data.get("user_id")}`;
     let authData = await client.get(key);
@@ -152,14 +163,64 @@ export async function action({ request }) {
       );
     }
     await client.del(key);
+    authorizedUser = userData.user;
+  } else if (data.get('message_id')) {
+    const key = `guilded_authlink_verify_code_short_${data.get("message_id")}`;
+    let authData = await client.get(key);
+    if (!authData) {
+      throw json(
+        {
+          message:
+            "No auth data is cached for this user. Refresh and try again.",
+        },
+        { status: 400 }
+      );
+    }
+    try {
+      authData = JSON.parse(authData);
+    } catch (e) {
+      throw json(
+        { message: "Invalid data is cached. Refresh and try again." },
+        { status: 500 }
+      );
+    }
+    const { userId, status, code } = authData;
+    if (code !== data.get("code")) {
+      throw json(
+        {
+          message:
+            "This error should not happen unless you are attempting to hijack somebody's account. Knock it off.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (status !== 'verified') {
+      throw json(
+        { message: "This authorization attempt has not been verified." },
+        { status: 400 }
+      );
+    }
+
+    const userData = await getUser(userId);
+    if (!userData.user) {
+      throw json(
+        { message: userData.message, from_guilded: true },
+        { status: 400 }
+      );
+    }
+    // await client.del(key);
+    authorizedUser = userData.user
+  }
+
+  if (authorizedUser) {
     const session = await getSession(request.headers.get("Cookie"));
-    session.set("guilded", { user: userData.user });
+    session.set("guilded", { user: authorizedUser });
     const headers = {
       "Set-Cookie": await commitSession(session),
     };
-
     const authQuery = data.get("authQuery");
-    if (authQuery && authQuery != "null") {
+    if (authQuery && authQuery !== "null") {
       const params = new URLSearchParams(authQuery);
       params.forEach((_, key) => {
         // This is a weird workaround to an inconsequential issue where the `id` param would be passed through the flow.
@@ -194,6 +255,38 @@ export default function Verify() {
     useLoaderData();
   const submit = useSubmit();
 
+  const [verifyStatus, setVerifyStatus] = useState(undefined);
+  useEffect(() => {
+    if (flow === "message") {
+      const messageId = new URL(messageUrl).searchParams.get("messageId");
+      const interval = setInterval(() => {
+        fetch(`/api/verifications/${messageId}`).then((r) =>
+          r.json().then((d) => {
+            if (!d.status) {
+              setVerifyStatus("expired");
+            } else if (d.status === "verified") {
+              submit(
+                {
+                  message_id: messageId,
+                  code,
+                  authQuery,
+                },
+                {
+                  method: "post",
+                  replace: true,
+                }
+              );
+            } else {
+              setVerifyStatus(d.status);
+            }
+          })
+        );
+      }, 2000);
+
+      return () => clearInterval(interval);
+    }
+  }, [flow]);
+
   return (
     <div className="max-w-3xl mx-auto">
       <ErrorBlock />
@@ -209,15 +302,34 @@ export default function Verify() {
             </a>{" "}
             from the{" "}
             <img
-              src="/images/authlink.png"
+              src="/images/authlink-pad.png"
               className="rounded-full h-4 inline"
             />{" "}
             <span className="font-bold">Authlink</span> bot. Click on the
             reaction that matches this number:
           </p>
-          <p className="text-6xl text-center font-bold tracking-widest">
-            {correctString}
+          <p className="text-6xl text-center font-bold tracking-widest mb-2">
+            {!verifyStatus || verifyStatus === "pending"
+              ? correctString
+              : "womp womp"}
           </p>
+          {verifyStatus === "verified" ? (
+            <p>Nice job! Redirecting you now...</p>
+          ) : verifyStatus === "failed" ? (
+            <p>
+              You selected the wrong number. Reload this page to send another
+              request.
+            </p>
+          ) : verifyStatus === "denied" ? (
+            <p>
+              As it turns out, you aren't {user.name}. Try picking on someone
+              with your own name next time.
+            </p>
+          ) : (
+            verifyStatus === "expired" && (
+              <p>The request expired. Reload this page to send another one.</p>
+            )
+          )}
         </div>
       ) : (
         <>
