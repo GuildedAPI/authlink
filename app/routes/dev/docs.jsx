@@ -76,7 +76,7 @@ export default function Docs() {
       <AnchoredHeader size="xl" id="base-url">
         Base URL
       </AnchoredHeader>
-      <pre className={preStyle}>https://authlink.guildedapi.com/api/v1</pre>
+      <pre className={preStyle}>https://authlink.app/api/v1</pre>
       <AnchoredHeader size="2xl" id="create-an-application">
         Create an Application
       </AnchoredHeader>
@@ -195,7 +195,7 @@ export default function Docs() {
         Authorization URL Structure
       </AnchoredHeader>
       <pre className={preStyle}>
-        https://authlink.guildedapi.com/auth?client_id=5f61fed3-e4b4-4d3c-bfa8-29514b4d675c&scope=identify+servers&redirect_uri=https%3A%2F%2Fauthlinkdemo.guildedapi.com%2Fme&prompt=consent&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
+        https://authlink.app/auth?client_id=5f61fed3-e4b4-4d3c-bfa8-29514b4d675c&scope=identify+servers&redirect_uri=https%3A%2F%2Fdemo.authlink.app%2Fme&prompt=consent&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
       </pre>
       <ul className="list-disc ml-4">
         <li>
@@ -238,7 +238,7 @@ export default function Docs() {
         Redirect URI
       </AnchoredHeader>
       <pre className={preStyle}>
-        https://authlinkdemo.guildedapi.com/me?code=M3oo84JqCYFcToYxjzWKVHEVnmd3Rfol&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
+        https://demo.authlink.app/me?code=M3oo84JqCYFcToYxjzWKVHEVnmd3Rfol&state=Um9yCthzQtjuIv6Cx48QS6NMXvdq2soQ
       </pre>
       <p>
         At this point, you should verify the <InlineCode>state</InlineCode>{" "}
