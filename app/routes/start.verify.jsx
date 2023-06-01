@@ -78,7 +78,7 @@ export async function loader({ request }) {
     // Make sure the member is still in the server
     const member = await fetchServerMember(
       messageAuthServer.id,
-      url.searchParams.get("id")
+      url.searchParams.get("id"),
     );
     if (member) {
       // We can use our more secure method
@@ -87,6 +87,7 @@ export async function loader({ request }) {
         authStrings[Math.floor(Math.random() * authStrings.length)];
       const code = randomString(32);
 
+      // This is a bad failure point if the selected server sets up permissions incorrectly
       const message = await sendVerificationMessage(
         messageAuthServer.authChannelId,
         member.id,
