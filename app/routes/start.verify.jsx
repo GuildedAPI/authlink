@@ -73,7 +73,7 @@ export async function loader({ request }) {
     authQuery = String(url.searchParams);
   }
 
-  const messageAuthServer = await findUsableServer(url.searchParams.get("id"));
+  const messageAuthServer = await findUsableServer(url.searchParams.get("id"), url.searchParams.get("preferServerId"));
   if (messageAuthServer) {
     // Make sure the member is still in the server
     const member = await fetchServerMember(
