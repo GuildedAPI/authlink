@@ -73,12 +73,15 @@ export async function loader({ request }) {
     authQuery = String(url.searchParams);
   }
 
-  const messageAuthServer = await findUsableServer(url.searchParams.get("id"), url.searchParams.get("preferServerId"));
+  const messageAuthServer = await findUsableServer(
+    url.searchParams.get("id"),
+    url.searchParams.get("preferServerId")
+  );
   if (messageAuthServer) {
     // Make sure the member is still in the server
     const member = await fetchServerMember(
       messageAuthServer.id,
-      url.searchParams.get("id"),
+      url.searchParams.get("id")
     );
     if (member) {
       // We can use our more secure method
@@ -90,7 +93,7 @@ export async function loader({ request }) {
       // This is a bad failure point if the selected server sets up permissions incorrectly
       const message = await sendVerificationMessage(
         messageAuthServer.authChannelId,
-        member.id,
+        data.user.id,
         authStrings
       );
       if (message) {
@@ -100,7 +103,7 @@ export async function loader({ request }) {
             authStrings,
             correctString,
             code,
-            userId: member.id,
+            userId: data.user.id,
             status: "pending",
           }),
           { EX: 600 }
@@ -110,8 +113,8 @@ export async function loader({ request }) {
         return {
           flow: "message",
           user: {
-            id: member.id,
-            name: member.user.name,
+            id: data.user.id,
+            name: data.user.name,
           },
           messageUrl: `https://www.guilded.gg/teams/${message.serverId}/groups/${message.raw.groupId}/channels/${message.channelId}/chat?messageId=${message.id}`,
           correctString,
